@@ -1,0 +1,34 @@
+2025-03-17 23:44:23,814 - lightrag - INFO - Creating working directory ./rag_init
+2025-03-17 23:44:28,580 - lightrag - INFO - Created new empty graph
+2025-03-17 23:44:28,584 - lightrag - INFO - Process 5060 KV load full_docs with 0 records
+2025-03-17 23:44:28,584 - lightrag - INFO - Process 5060 KV load text_chunks with 0 records
+2025-03-17 23:44:28,585 - lightrag - INFO - Process 5060 KV load llm_response_cache with 0 records
+2025-03-17 23:44:28,585 - lightrag - INFO - Process 5060 doc status load doc_status with 0 records
+2025-03-17 23:44:28,585 - lightrag - INFO - Storage Initialization completed!
+2025-03-17 23:44:28,585 - lightrag - INFO - Creating a new event loop in main thread.
+2025-03-17 23:44:28,586 - lightrag - INFO - Inserting 1 records to doc_status
+2025-03-17 23:44:28,586 - lightrag - INFO - Process 5060 doc status writting 1 records to doc_status
+2025-03-17 23:44:28,586 - lightrag - INFO - Stored 1 new unique documents
+2025-03-17 23:44:28,586 - lightrag - INFO - Processing 1 document(s) in 1 batches
+2025-03-17 23:44:28,586 - lightrag - INFO - Start processing batch 1 of 1.
+2025-03-17 23:44:36,234 - lightrag - INFO - Inserting 1 records to doc_status
+2025-03-17 23:44:36,234 - lightrag - INFO - Process 5060 doc status writting 1 records to doc_status
+2025-03-17 23:44:36,235 - lightrag - INFO - Inserting 1 to chunks
+2025-03-17 23:44:36,235 - lightrag - INFO - Inserting 1 records to full_docs
+2025-03-17 23:44:36,235 - lightrag - INFO - Inserting 1 records to text_chunks
+2025-03-17 23:44:37,114 - lightrag - ERROR - Failed to process document doc-5539bcf139695dd7c8262ac5dc2862a7: model "nomic-embed-text" not found, try pulling it first (status code: 404)
+2025-03-17 23:44:37,114 - lightrag - INFO - Inserting 1 records to doc_status
+2025-03-17 23:44:37,114 - lightrag - INFO - Process 5060 doc status writting 1 records to doc_status
+2025-03-17 23:44:37,115 - lightrag - INFO - Process 5060 KV writting 1 records to full_docs
+2025-03-17 23:44:37,115 - lightrag - INFO - Process 5060 KV writting 1 records to text_chunks
+2025-03-17 23:44:37,116 - lightrag - INFO - Writing graph with 0 nodes, 0 edges
+2025-03-17 23:44:37,121 - lightrag - INFO - In memory DB persist to disk
+2025-03-17 23:44:37,121 - lightrag - INFO - Completed batch 1 of 1.
+2025-03-17 23:44:37,121 - lightrag - INFO - Document processing pipeline completed
+2025-03-17 23:44:37,983 - lightrag - ERROR - Error in get_vector_context: model "nomic-embed-text" not found, try pulling it first (status code: 404)
+2025-03-17 23:45:02,568 - lightrag - INFO - Inserting 1 records to llm_response_cache
+2025-03-17 23:45:02,568 - lightrag - INFO - Process 5060 buidling query context...
+2025-03-17 23:45:02,568 - lightrag - INFO - Query nodes: 校长, 食堂, 吃饭, 应对措施, top_k: 60, cosine: 0.2
+2025-03-17 23:45:03,003 - lightrag - INFO - Query edges: 校园生活, 师生互动, 突发情况处理, top_k: 60, cosine: 0.2
+2025-03-17 23:45:03,431 - lightrag - ERROR - Error in get_kg_context: model "nomic-embed-text" not found, try pulling it first (status code: 404)
+2025-03-17 23:45:03,432 - lightrag - INFO - Process 5060 KV writting 1 records to llm_response_cache
