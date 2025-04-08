@@ -12,6 +12,12 @@ import time
 
 
 def main(f_input, f_question):
+    global api_key, app_id
+    with open('config.config', 'r') as f_key:
+        key_content = f_key.readlines()
+    app_id = key_content[0].split(':')[1][:-1]
+    api_key = key_content[1].split(':')[1][:-1]
+
     print(u'第一阶段: 程序参数确认中......')
     time_current = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print(u'当前系统时间:' + time_current)
@@ -53,8 +59,8 @@ def kw_query(f_prompt):
     # print(u'-----------文本修改模式专用调试语句，测试docx文件是否读取正确----------\n' + f_prompt)
     # return u'测试用返回值'
     response = Application.call(
-        api_key="sk-",
-        app_id='',
+        api_key=api_key,
+        app_id=app_id,
         prompt=f_prompt,
         rag_options={
             "pipeline_ids": ["fag3304t70"]
