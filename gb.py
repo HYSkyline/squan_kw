@@ -3,25 +3,37 @@
 import time
 import os
 import requests
-from docx import Document
+# from docx import Document
+from markitdown import MarkItDown
+import re
+import json
 
 
 def main(f_path):
     print('Start.')
     print('--' * 6)
+    print(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+    time_origin = time.time()
 
     txt_content = format_trans(f_path)
-    # print(u'******调试用********\n' + txt_content)
-    data_res = data_extract(txt_content)
-    output_check = data_output(data_res)
-
-    print(u'EOF.')
+    # print(u'******调试用********\n' + txt_content[-1])
+    for i in range(1, len(txt_content)):
+        time_para = time.time()
+        para_name = txt_content[i][:txt_content[i].find('\n')]
+        print(u'文字信息正在提交大模型. 当前章节:' + para_name)
+        data_res = data_extract(txt_content[i])
+        output_check = data_output(para_name, data_res)
+        print(u'本篇章数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+        print('--' * 6)
+        time.sleep(1)
+    print(u'\n总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
 
 
 def format_trans(file_path):
     print(u'对输入文件进行预处理...')
     file_all_name = os.path.split(file_path)[1]
     file_name, file_format = file_all_name.split('.')
+    content = ''
     if file_format == 'html':
         print(u'网址: ' + file_name)
         print(u'待处理文件为网页文件，即将联网打开该网页')
@@ -41,27 +53,34 @@ def format_trans(file_path):
     else:
         print(u'还未想好怎么处理的文件格式')
     print('--' * 6)
-    return content
+    content_paras = content_split(content)
+    return content_paras
 
 
 def data_extract(txt_content):
-    print(u'文字信息正在提交大模型...')
     with open('local_ollama_ip.config', 'r') as f_ip:
         ollama_ips = f_ip.readlines()
-
-    prompt_pre = u'请提取以下内容中的指标名称和数据，并将其整理成表格形式。不可对文字进行修改，不可对数据进行修改，不可对指标和数据的对应关系进行篡改。\
-    需要提取数据的内容如下：\n'
-    url = "http://" + ollama_ips[1][:-1] + ":11434/api/generate"  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
+    with open('prompt_pre.txt', 'r', encoding='utf-8') as f_prompt:
+        prompt_pre = f_prompt.read()
+    print(u'*******调试用*******\n' + prompt_pre + txt_content.replace(' ', '') + '\n******************')
+    url = "http://" + ollama_ips[0][:-1] + ":11434/api/generate"  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
     payload = {
-        "model": "qwq:32b",
+        "model": "qwq:latest",
         "prompt": prompt_pre + txt_content,
-        "stream": False
+        "options": {
+            "temperature": 0,
+            # "max_tokens": 500,
+            # "top_p": 0.9,
+            # "num_ctx": 0,
+        },
+        "stream": False,
+        "format": "json",
     }
 
     try:
         response = requests.post(url, json=payload)
         if response.ok:
-            print(u"已由大模型处理完成.\n" + '--' * 6)
+            # print(u"已由大模型处理完成.\n" + '--' * 6)
             return response.text
         else:
             print(f"大模型处理失败，状态码：{response.status_code}，程序即将退出.")
@@ -71,12 +90,11 @@ def data_extract(txt_content):
         exit()
 
 
-def data_output(res):
-    print(u'数据抽取结果保存中....')
-    with open(u'公报数据抽取测试.txt', 'w', encoding='utf-8') as f_res:
-        for each in res:
-            f_res.writelines(each)
-    print(u'数据抽取结果已保存.\n' + '--' * 6)
+def data_output(para_name, res):
+    res_json = json.loads(res)['response'].replace('\n', '').replace(' ', '')
+    with open(u'公报数据抽取测试-' + para_name + '.txt', 'w', encoding='utf-8') as f_res:
+        f_res.write(res_json)
+    # print(u'数据抽取结果已保存.\n' + '--' * 6)
     return 200
 
 
@@ -84,28 +102,47 @@ def file_read_txt(f_path):
     try:
         with open(f_path, 'r', encoding='gbk') as f_data:
             content = f_data.read()
-        return content.replace('\n\n', '\n').replace('  ', ' ')
+        return content
     except UnicodeDecodeError as e:
         with open(f_path, 'r', encoding='utf-8') as f_data:
             content = f_data.read()
-        return content.replace('\n\n', '\n').replace('  ', ' ')
-    else:
-        print(u'txt的编码格式不正确，建议更换源文件格式或重新从网页上下载txt文件.')
+        return content
+    except Exception as e:
+        print(e)
 
 
 def file_read_html(f_path):
-    return ''
+    try:
+        response = requests.post(f_path)
+        return response.text
+    except Exception as e:
+        print(u'网页读取失败:' + str(e))
+        exit()
 
 
 def file_read_docx(f_path):
-    return ''
+    md = MarkItDown()
+    result = md.convert(f_path)
+    return result.text_content
 
 
 def file_read_pdf(f_path):
-    return ''
+    md = MarkItDown()
+    result = md.convert(f_path)
+    return result.text_content
+
+
+def content_split(txt):
+    para_index = [s for s in re.split(r'[一二三四五六七八九十]+、', txt) if s]
+    # print(u'******调试用********\n' + str(len(para_index)))
+    # for each in para_index:
+    #     print(each)
+    #     print('***' * 6)
+    return para_index
 
 
 if __name__ == '__main__':
     # f_path = 'https://www.ly.gov.cn/2024/05-09/144721.html'
-    f_path = u'C:\\项目文件\\squan_kw\\2023年洛阳市国民经济和社会发展统计公报.txt'
+    f_path = u'D:\\squan_kw\\2023年洛阳市国民经济和社会发展统计公报.txt'
+    global time_origin
     main(f_path)
