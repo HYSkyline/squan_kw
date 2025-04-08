@@ -3,6 +3,7 @@
 import time
 import os
 import requests
+from openai import OpenAI
 # from docx import Document
 from markitdown import MarkItDown
 import re
@@ -21,8 +22,10 @@ def main(f_path):
         time_para = time.time()
         para_name = txt_content[i][:txt_content[i].find('\n')]
         print(u'文字信息正在提交大模型. 当前章节:' + para_name)
-        data_res = data_extract(txt_content[i])
-        output_check = data_output(para_name, data_res)
+        # data_res = data_extract_ollama(txt_content[i])
+        # output_check = data_output_ollama(para_name, data_res)
+        data_res = data_extract_aliyun(txt_content[i])
+        output_check = data_output_aliyun(para_name, data_res)
         print(u'本篇章数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
         print('--' * 6)
         time.sleep(1)
@@ -34,6 +37,7 @@ def format_trans(file_path):
     file_all_name = os.path.split(file_path)[1]
     file_name, file_format = file_all_name.split('.')
     content = ''
+
     if file_format == 'html':
         print(u'网址: ' + file_name)
         print(u'待处理文件为网页文件，即将联网打开该网页')
@@ -52,17 +56,18 @@ def format_trans(file_path):
         content = file_read_pdf(file_path)
     else:
         print(u'还未想好怎么处理的文件格式')
+
     print('--' * 6)
     content_paras = content_split(content)
     return content_paras
 
 
-def data_extract(txt_content):
+def data_extract_ollama(txt_content):
     with open('local_ollama_ip.config', 'r') as f_ip:
         ollama_ips = f_ip.readlines()
     with open('prompt_pre.txt', 'r', encoding='utf-8') as f_prompt:
         prompt_pre = f_prompt.read()
-    print(u'*******调试用*******\n' + prompt_pre + txt_content.replace(' ', '') + '\n******************')
+    # print(u'*******调试用*******\n' + prompt_pre + txt_content.replace(' ', '') + '\n******************')
     url = "http://" + ollama_ips[0][:-1] + ":11434/api/generate"  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
     payload = {
         "model": "qwq:latest",
@@ -90,13 +95,40 @@ def data_extract(txt_content):
         exit()
 
 
-def data_output(para_name, res):
+def data_extract_aliyun(txt_content):
+    with open('prompt_pre.txt', 'r', encoding='utf-8') as f_prompt:
+        prompt_pre = f_prompt.read()
+
+    with open('config.config', 'r') as f_key:
+        api_key = f_key.readlines()[1].split(':')[1][:-1]
+    client = OpenAI(
+        # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
+        api_key=api_key,  # 如何获取API Key：https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    )
+    completion = client.chat.completions.create(
+        model="deepseek-r1",  # 此处以 deepseek-r1 为例，可按需更换模型名称。
+        messages=[
+            {'role': 'user', 'content': prompt_pre + txt_content}
+        ]
+    )
+    return completion.choices[0].message.content
+
+
+def data_output_ollama(para_name, res):
     res_json = json.loads(res)['response'].replace('\n', '').replace(' ', '')
     with open(u'公报数据抽取测试-' + para_name + '.txt', 'w', encoding='utf-8') as f_res:
         f_res.write(res_json)
     # print(u'数据抽取结果已保存.\n' + '--' * 6)
     return 200
 
+
+def data_output_aliyun(para_name, res):
+    with open(u'公报数据抽取测试-' + para_name + '.txt', 'w', encoding='utf-8') as f_res:
+        f_res.write(res)
+    # print(u'数据抽取结果已保存.\n' + '--' * 6)
+    return 200
+    
 
 def file_read_txt(f_path):
     try:

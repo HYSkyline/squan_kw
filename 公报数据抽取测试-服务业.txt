@@ -1,1 +1,22 @@
-{}
+```json
+[
+  {"indicator": "批发和零售业增加值（亿元）", "value": 522.3},
+  {"indicator": "交通运输、仓储和邮政业增加值（亿元）", "value": 394.8},
+  {"indicator": "住宿和餐饮业增加值（亿元）", "value": 96.1},
+  {"indicator": "金融业增加值（亿元）", "value": 309.3},
+  {"indicator": "房地产业增加值（亿元）", "value": 300.8},
+  {"indicator": "信息传输、软件和信息技术服务业增加值（亿元）", "value": 212.2},
+  {"indicator": "规模以上服务业企业营业收入（亿元）", "value": 553.1},
+  {"indicator": "公路货物运输量（亿吨）", "value": 1.8},
+  {"indicator": "公路货物周转量（亿吨公里）", "value": 385.0},
+  {"indicator": "公路旅客运输量（万人）", "value": 3392.3},
+  {"indicator": "公路客运周转量（亿人公里）", "value": 12.0},
+  {"indicator": "机场旅客吞吐量（万人）", "value": 120.7},
+  {"indicator": "机场货邮吞吐量（吨）", "value": 755.9},
+  {"indicator": "机动车保有量（万辆）", "value": 158.3},
+  {"indicator": "轿车保有量（万辆）", "value": 90.7},
+  {"indicator": "邮电业务总量（亿元）", "value": 120.1},
+  {"indicator": "邮政行业业务总量（亿元）", "value": 39.9},
+  {"indicator": "电信业务总量（亿元）", "value": 80.2}
+]
+```

@@ -1,1 +1,19 @@
-{}
+```json
+[
+  {"indicator": "工业增加值（亿元）", "value": 1751.6},
+  {"indicator": "规模以上工业增加值", "value": ""},
+  {"indicator": "采矿业增加值", "value": ""},
+  {"indicator": "制造业增加值", "value": ""},
+  {"indicator": "电力、热力、燃气及水生产和供应业增加值", "value": ""},
+  {"indicator": "装备制造业占规模以上工业比重（%）", "value": 21.9},
+  {"indicator": "六大高成长性制造业占规模以上工业比重（%）", "value": 27.7},
+  {"indicator": "高新技术产业占规模以上工业比重（%）", "value": 46.8},
+  {"indicator": "工业战略性新兴产业占规模以上工业比重（%）", "value": 12.6},
+  {"indicator": "高技术制造业占规模以上工业比重（%）", "value": 3.0},
+  {"indicator": "高耗能行业占规模以上工业比重（%）", "value": 40.9},
+  {"indicator": "规模以上工业产品销售率（%）", "value": 99.2},
+  {"indicator": "建筑业增加值（亿元）", "value": 393.8},
+  {"indicator": "建筑业总产值（亿元）", "value": 791.4},
+  {"indicator": "资质内建筑业企业（家）", "value": 734}
+]
+```
