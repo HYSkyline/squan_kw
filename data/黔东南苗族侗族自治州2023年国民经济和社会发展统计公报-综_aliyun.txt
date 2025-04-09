@@ -1,0 +1,21 @@
+```json
+[
+  {"indicator": "地区生产总值（亿元）", "value": 1329.65},
+  {"indicator": "第一产业增加值（亿元）", "value": 277.25},
+  {"indicator": "第二产业增加值（亿元）", "value": 294.25},
+  {"indicator": "第三产业增加值（亿元）", "value": 758.14},
+  {"indicator": "全州人均生产总值（元）", "value": 35511},
+  {"indicator": "年末全州常住人口（万人）", "value": 375.73},
+  {"indicator": "年末户籍人口（万人）", "value": 489.93},
+  {"indicator": "户籍人口增加数（万人）", "value": 0.33},
+  {"indicator": "少数民族人口（万人）", "value": 402.33},
+  {"indicator": "苗族人口（万人）", "value": 213.93},
+  {"indicator": "侗族人口（万人）", "value": 149.88},
+  {"indicator": "人口出生率（‰）", "value": 9.1},
+  {"indicator": "人口死亡率（‰）", "value": 6.6},
+  {"indicator": "人口自然增长率（‰）", "value": 2.5},
+  {"indicator": "城镇新增就业（人）", "value": 60188},
+  {"indicator": "失业人员再就业（人）", "value": 16658},
+  {"indicator": "困难人员再就业（人）", "value": 7278}
+]
+```

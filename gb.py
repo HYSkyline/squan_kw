@@ -16,19 +16,20 @@ def main(f_path):
     print(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     time_origin = time.time()
 
+    file_name = f_path.split('.')[0]
     txt_content = format_trans(f_path)
-    print(u'******调试用********\n' + txt_content[4])
-    # for i in range(1, len(txt_content)):
-    #     time_para = time.time()
-    #     para_name = txt_content[i][:txt_content[i].find('\n')]
-    #     print(u'文字信息正在提交大模型. 当前章节:' + para_name)
-    #     # data_res = data_extract_ollama(txt_content[i])
-    #     # output_check = data_output_ollama(para_name, data_res)
-    #     data_res = data_extract_aliyun(txt_content[i])
-    #     output_check = data_output_aliyun(para_name, data_res)
-    #     print(u'本篇章数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
-    #     print('--' * 6)
-    print(u'\n总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
+    # print(u'******调试用********\n' + txt_content[4])
+    for i in range(4, len(txt_content)):
+        time_para = time.time()
+        para_name = txt_content[i][:txt_content[i].find('\n')]
+        print(u'文字信息正在提交大模型. 当前章节:' + para_name)
+        # data_res = data_extract_ollama(txt_content[i])
+        # output_check = data_output_ollama(file_name, para_name, data_res)
+        data_res = data_extract_aliyun(txt_content[i])
+        output_check = data_output_aliyun(file_name, para_name, data_res)
+        print(u'本篇章数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+        print('--' * 6)
+    print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
 
 
 def format_trans(file_path):
@@ -56,7 +57,7 @@ def format_trans(file_path):
         print(u'还未想好怎么处理的文件格式')
     print('--' * 6)
     if content:
-        content_paras = content_split(content)
+        content_paras = content_split(content.replace(' ', ''))
         return content_paras
     else:
         exit()
@@ -71,7 +72,7 @@ def data_extract_ollama(txt_content):
     url = "http://" + ollama_ips[1][:-1] + ":11434/api/generate"  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
     payload = {
         "model": "qwq:latest",
-        "prompt": prompt_pre + txt_content,
+        "prompt": prompt_pre + txt_content.replace('\n', '').replace(' ', ''),
         "options": {
             "temperature": 0,
             # "max_tokens": 500,
@@ -85,7 +86,6 @@ def data_extract_ollama(txt_content):
     try:
         response = requests.post(url, json=payload)
         if response.ok:
-            # print(u"已由大模型处理完成.\n" + '--' * 6)
             return response.text
         else:
             print(f"大模型处理失败，状态码：{response.status_code}，程序即将退出.")
@@ -107,24 +107,24 @@ def data_extract_aliyun(txt_content):
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
     )
     completion = client.chat.completions.create(
-        model="deepseek-r1",  # 此处以 deepseek-r1 为例，可按需更换模型名称。
+        model="qwen-plus",  # 此处以 deepseek-r1 为例，可按需更换模型名称。
         messages=[
-            {'role': 'user', 'content': prompt_pre + txt_content}
+            {'role': 'user', 'content': prompt_pre + txt_content.replace('\n', '').replace(' ', '')}
         ]
     )
     return completion.choices[0].message.content
 
 
-def data_output_ollama(para_name, res):
+def data_output_ollama(file_name, para_name, res):
     res_json = json.loads(res)['response'].replace('\n', '').replace(' ', '')
-    with open(u'公报数据抽取测试-' + para_name + '.txt', 'w', encoding='utf-8') as f_res:
+    with open(u'data/' + file_name + '-' + para_name + '_ollama.txt', 'w', encoding='utf-8') as f_res:
         f_res.write(res_json)
     # print(u'数据抽取结果已保存.\n' + '--' * 6)
     return 200
 
 
-def data_output_aliyun(para_name, res):
-    with open(u'公报数据抽取测试-' + para_name + '.txt', 'w', encoding='utf-8') as f_res:
+def data_output_aliyun(file_name, para_name, res):
+    with open(u'data/' + file_name + '-' + para_name + '_aliyun.txt', 'w', encoding='utf-8') as f_res:
         f_res.write(res)
     # print(u'数据抽取结果已保存.\n' + '--' * 6)
     return 200
@@ -166,7 +166,8 @@ def file_read_pdf(f_path):
 
 
 def content_split(txt):
-    para_index = [s for s in re.split(r'[一二三四五六七八九十]+、', txt) if s]
+    para_index = [s for s in re.split(r'[一二三四五六七八九十]+、', txt.replace(' ', '')\
+                                      .replace('一、二、三产', '一二三产').replace('一、二产', '一二产').replace('二、三产', '二三产')) if s]
     # print(u'******调试用********\n' + str(len(para_index)))
     # for each in para_index:
     #     print(each)
