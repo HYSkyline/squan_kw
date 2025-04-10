@@ -18,17 +18,17 @@ def main(f_path):
 
     file_name = f_path.split('.')[0]
     txt_content = format_trans(f_path)
-    # print(u'******调试用********\n' + txt_content[4])
-    for i in range(4, len(txt_content)):
-        time_para = time.time()
-        para_name = txt_content[i][:txt_content[i].find('\n')]
-        print(u'文字信息正在提交大模型. 当前章节:' + para_name)
-        # data_res = data_extract_ollama(txt_content[i])
-        # output_check = data_output_ollama(file_name, para_name, data_res)
-        data_res = data_extract_aliyun(txt_content[i])
-        output_check = data_output_aliyun(file_name, para_name, data_res)
-        print(u'本篇章数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
-        print('--' * 6)
+    print(u'******调试用********\n' + txt_content[2])
+    # for i in range(4, len(txt_content)):
+    #     time_para = time.time()
+    #     para_name = txt_content[i][:txt_content[i].find('\n')]
+    #     print(u'文字信息正在提交大模型. 当前章节:' + para_name)
+    #     # data_res = data_extract_ollama(txt_content[i])
+    #     # output_check = data_output_ollama(file_name, para_name, data_res)
+    #     data_res = data_extract_aliyun(txt_content[i])
+    #     output_check = data_output_aliyun(file_name, para_name, data_res)
+    #     print(u'本篇章数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+    #     print('--' * 6)
     print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
 
 
