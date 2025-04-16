@@ -16,19 +16,22 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-    model="deepseek-r1",  # 此处以 deepseek-r1 为例，可按需更换模型名称。
+    model="qwen-plus",  # 此处以 deepseek-r1 为例，可按需更换模型名称。
     messages=[
-        {'role': 'user', 'content': '请介绍一下最速降线'}
-    ]
+        {'role': 'system', 'content': '返回类似{"question":"answer"}形式的json结果'},
+        {'role': 'user', 'content': '请介绍一下明朝的空印案'}
+    ],
+    stream=True,
+    response_format={"type": "json_object"},
+    extra_body={"enable_search": True},
 )
 
-# 通过reasoning_content字段打印思考过程
-print("思考过程：")
-print(completion.choices[0].message.reasoning_content)
-print('--' * 6)
-
+full_content = ''
 # 通过content字段打印最终答案
 print("最终答案：")
-print(completion.choices[0].message.content)
-print('--' * 6)
-print('总用时:' + str(time.time() - time_start) + 's.')
+for chunk in completion:
+    # 如果stream_options.include_usage为True，则最后一个chunk的choices字段为空列表，需要跳过（可以通过chunk.usage获取 Token 使用量）
+    if chunk.choices:
+        full_content += chunk.choices[0].delta.content
+        print(chunk.choices[0].delta.content, end='')
+# print(f"\n完整内容为：{full_content}")

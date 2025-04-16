@@ -1,3 +1,4 @@
 *.config
 local01/
 dickens/
+venv/
