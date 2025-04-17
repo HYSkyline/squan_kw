@@ -13,11 +13,42 @@ def main(file_list):
 	print('--' * 6)
 	time_ori = time.time()
 
-	file_trans_pdf(file_list['pdf'], 'temp/md_res_pdf.txt')
+	file_trans_transform(file_list['pdf'], 'temp/md_res_pdf.txt')
 
 	print('--' * 6)
 	print('Time escape:' + str(int((time.time() - time_ori) * 100) / 100) + 's.')
 	print('Link Logout.')
+
+
+def file_format_transform(f_input, f_save):
+	if not os.path.exists('temp'):
+		os.mkdir('temp')
+	if not os.path.exists('temp/pdf_pages'):
+		os.mkdir('temp/pdf_pages')
+	print(u'创建temp文件夹作为缓存文件（运行完成后可手动删除）')
+
+	print(u'对输入文件进行预处理...')
+	format_kind = f_input.split('.')[1]
+	if format_kind == 'doc' or format_kind == 'docx':
+		print(u'文件名:' + f_input)
+		print(u'待处理文件为Word文件，已读取文字及表格')
+		return file_trans_docx(f_input, f_save)
+	elif format_kind == 'pdf':
+		print(u'文件名:' + f_input)
+		print(u'待处理文件为PDF文件，已读取文字、解析表格，并保存图表图片（但暂时不支持图表的数据抽取）')
+		return file_trans_pdf(f_input, f_save)
+	elif format_kind == 'txt':
+		print(u'文件名:' + f_input)
+		print(u'待处理文件为txt文件，已直接读取')
+		return file_trans_txt(f_input, f_save)
+	elif format_kind == 'html':
+		print(u'网址: ' + f_input)
+		print(u'待处理文件为网页文件，正在尝试联网打开...')
+		return file_trans_html(f_input, f_save)
+	else:
+		print(u'文件: ' + f_input)
+		print(u'该类型尚未准备预处理程序，不保证结果准确性，建议手动转换为word、txt、html或pdf格式')
+		return file_trans_others(f_input, f_save)
 
 
 def file_trans_docx(f_doc, f_save):
@@ -27,22 +58,31 @@ def file_trans_docx(f_doc, f_save):
 	with open(f_save, 'w', encoding='utf-8') as f_res:
 		f_res.write(md_word)
 	print('word file converted.')
-	return 0
+	return md_word
 
 
 def file_trans_pdf(f_pdf, f_save):
 	# 使用PymuPDF库进行解析，表格解析泛用性差，图表图片提取效果差
 	f_p = pymupdf.open(f_pdf)
-	with open(f_save, 'wb') as f_res:
-		for page in f_p:
-			page_text = page.get_text().encode('utf-8')
-			f_res.write(page_text)
-			f_res.write(bytes((12,)))
+	full_text = ''
+	# with open(f_save, 'wb') as f_res:
+	# 	for page in f_p:
+	# 		page_text = page.get_text().encode('utf-8')
+	# 		full_text = full_text + page_text.decode('utf-8')
+	# 		f_res.write(page_text)
+	# 		f_res.write(bytes((12,)))
+	cv = Converter(f_pdf)
+	cv.convert('temp/pdf2word.docx')
+	md = MarkItDown()
+	md_word = md.convert('temp/pdf2word.docx').text_content
+	full_text = md_word + '\n'
 	with open('temp/pdf_pages/pdf_table.txt', 'w', encoding='utf-8') as f_tab:
 		for page in f_p:
 			tabs = page.find_tables()
 			if tabs.tables:
-				f_tab.write(pdf_table_md(tabs[0].extract()))
+				table_md = pdf_table_md(tabs[0].extract())
+				f_tab.write(table_md)
+				full_text = full_text + table_md
 	for page_index in range(1, len(f_p)):
 		page = f_p[page_index]
 		image_list = page.get_images()
@@ -68,7 +108,7 @@ def file_trans_pdf(f_pdf, f_save):
 	# with open(f_save, 'w', encoding='utf-8') as f_res:
 	# 	f_res.write(md_pdf)
 	print('pdf file converted.')
-	return 0
+	return full_text
 
 
 def pdf_table_md(table_list):
@@ -108,7 +148,7 @@ def file_trans_html(f_html, f_save):
 	with open(f_save, 'w', encoding='utf-8') as f_res:
 		f_res.write(md_html)
 	print('html file converted.')
-	return 0
+	return md_html
 
 
 def file_trans_txt(f_txt, f_save):
@@ -117,7 +157,7 @@ def file_trans_txt(f_txt, f_save):
 	with open(f_save, 'w', encoding='utf-8') as f_res:
 		f_res.write(md_html)
 	print('txt file converted.')
-	return 0
+	return md_txt
 
 
 def file_trans_others(f_input, f_save):
@@ -125,9 +165,9 @@ def file_trans_others(f_input, f_save):
 		md = MarkItDown()
 		md_input = md.convert(f_input).text_content
 		with open(f_save, 'w', encoding='utf-8') as f_res:
-			f_res.write(md_html)
+			f_res.write(md_input)
 		print('input file converted.')
-		return 0
+		return md_input
 	except Exception as e:
 		print('input file cannot be converted. error:' + str(e))
 		exit()
