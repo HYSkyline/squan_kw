@@ -18,18 +18,18 @@ def main(f_path):
 
     file_name = f_path.split('.')[0]
     md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
-    print(u'******调试用********\n' + md_content)
+    md_content_clip_list = content_clip(md_content)
+    # print(u'******调试用********\n' + md_content)
 
-    # for i in range(4, len(txt_content)):
-    #     time_para = time.time()
-    #     para_name = txt_content[i][:txt_content[i].find('\n')]
-    #     print(u'文字信息正在提交大模型. 当前章节:' + para_name)
-    #     # data_res = data_extract_ollama(txt_content[i])
-    #     # output_check = data_output_ollama(file_name, para_name, data_res)
-    #     data_res = data_extract_aliyun(txt_content[i])
-    #     output_check = data_output_aliyun(file_name, para_name, data_res)
-    #     print(u'本篇章数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
-    #     print('--' * 6)
+    for i in range(len(md_content_clip_list)):
+        time_para = time.time()
+        print(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
+        # data_res = data_extract_ollama(md_content_clip_list[i])
+        # output_check = data_output_ollama(file_name, str(i + 1), data_res)
+        data_res = data_extract_aliyun(md_content_clip_list[i])
+        output_check = data_output_aliyun(file_name, str(i + 1), data_res)
+        print(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+        print('--' * 6)
     print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
 
 
@@ -180,9 +180,18 @@ def data_output_aliyun(file_name, para_name, res):
 
 
 def content_clip(cont):
+    max_content_length = 500
     cont_list = cont.split('\n\n')
+    
+    res_list = []
+    clip_cont = ''
     for i in range(len(cont_list)):
-        pass
+        clip_cont = clip_cont + cont_list[i]
+        if len(clip_cont) > max_content_length:
+            res_list.append(clip_cont)
+            clip_cont = ''
+    res_list.append(clip_cont)
+    return res_list
 
 
 if __name__ == '__main__':
