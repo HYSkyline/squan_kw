@@ -16,7 +16,7 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-    model="qwen-plus",  # 此处以 deepseek-r1 为例，可按需更换模型名称。
+    model="qwen-plus",  # 可按需更换模型名称
     messages=[
         {'role': 'system', 'content': '返回类似{"question":"answer"}形式的json结果'},
         {'role': 'user', 'content': '请介绍一下明朝的空印案'}

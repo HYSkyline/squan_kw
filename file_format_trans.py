@@ -11,6 +11,7 @@ from pdf2docx import Converter
 def main(file_list):
 	print('Link Start!')
 	print('--' * 6)
+	# time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
 	time_ori = time.time()
 
 	file_trans_transform(file_list['pdf'], 'temp/md_res_pdf.txt')
@@ -21,6 +22,7 @@ def main(file_list):
 
 
 def file_format_transform(f_input, f_save):
+	# 创建temp文件夹作为缓存文件的存放空间，里面还包含pdf_pages文件夹，用以存放pdf表格及pdf的插图图表
 	if not os.path.exists('temp'):
 		os.mkdir('temp')
 	if not os.path.exists('temp/pdf_pages'):
@@ -53,6 +55,7 @@ def file_format_transform(f_input, f_save):
 
 
 def file_trans_docx(f_doc, f_save):
+	# 通过markitdown把word直接转化为md格式
 	# 是否考虑把word中的图表jpg保存出来
 	md = MarkItDown()
 	md_word = md.convert(f_doc).text_content
@@ -63,6 +66,7 @@ def file_trans_docx(f_doc, f_save):
 
 
 def file_trans_pdf(f_pdf, f_save):
+	# 最后使用pdf2docx转化文字，使用PymuPDF转化表格和图表
 	# 使用PymuPDF库进行解析，表格解析泛用性差，图表图片提取效果差
 	f_p = pymupdf.open(f_pdf)
 	full_text = ''
@@ -113,6 +117,7 @@ def file_trans_pdf(f_pdf, f_save):
 
 
 def pdf_table_md(table_list):
+	# 使用PymuPDF转化pdf表格的格式整理辅助函数
 	md = table_list
 	md_txt = ''
 	for table in md:
@@ -132,6 +137,7 @@ def pdf_table_md(table_list):
 
 
 def list_none_replace(table):
+	# 将表格内的null转化为""
 	for i in range(len(table)):
 		if table[i]:
 			pass
@@ -141,7 +147,7 @@ def list_none_replace(table):
 
 
 def file_trans_html(f_html, f_save):
-	# HTML文件打开网页转md，还需要解决附件下载型的网页
+	# HTML文件打开网页转md，还未能解决附件下载型的网页
 	with open('temp/html_cache.txt', 'w', encoding='utf-8') as f_cache:
 		f_cache.write(requests.get(file_list['html']).text_content)
 	md = MarkItDown()
@@ -153,6 +159,7 @@ def file_trans_html(f_html, f_save):
 
 
 def file_trans_txt(f_txt, f_save):
+	# 通过markitdown把txt直接转化为md格式
 	md = MarkItDown()
 	md_txt = md.convert(f_txt).text_content
 	with open(f_save, 'w', encoding='utf-8') as f_res:
@@ -162,6 +169,7 @@ def file_trans_txt(f_txt, f_save):
 
 
 def file_trans_others(f_input, f_save):
+	# 通过markitdown尝试把其他类型文件直接转化为md格式
 	try:
 		md = MarkItDown()
 		md_input = md.convert(f_input).text_content
@@ -175,6 +183,7 @@ def file_trans_others(f_input, f_save):
 
 
 def api_key_fetch():
+	# 后续可以用qwen_vl模型完成扫描pdf的电子化
 	with open('config.config', 'r') as f_key:
 		api_key = f_key.readlines()[1].split(':')[1][:-1]
 	os.environ['api_key'] = api_key
