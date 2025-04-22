@@ -1,1 +1,0 @@
-{"indicator":"文化馆数量","value":17}

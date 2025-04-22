@@ -10,7 +10,7 @@ import re
 import json
 
 
-def main(f_path):
+def main(f_path, model):
     print('Start.')
     print('--' * 6)
     print(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
@@ -24,10 +24,15 @@ def main(f_path):
     for i in range(len(md_content_clip_list)):
         time_para = time.time()
         print(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
-        # data_res = data_extract_ollama(md_content_clip_list[i])
-        # output_check = data_output_ollama(file_name, str(i + 1), data_res)
-        data_res = data_extract_aliyun(md_content_clip_list[i])
-        output_check = data_output_aliyun(file_name, str(i + 1), data_res)
+        if model == 'online':
+            data_res = data_extract_aliyun(md_content_clip_list[i])
+            output_check = data_output_aliyun(file_name, str(i + 1), data_res)
+        elif model == 'local':
+            data_res = data_extract_ollama(md_content_clip_list[i])
+            output_check = data_output_ollama(file_name, str(i + 1), data_res)
+        else:
+            print(u'未明确数据抽取的联网/本地模式')
+            exit()
         print(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
         print('--' * 6)
     print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
@@ -132,7 +137,7 @@ def data_output_aliyun(file_name, para_name, res):
         f_res.write(res)
     # print(u'数据抽取结果已保存.\n' + '--' * 6)
     return 200
-    
+
 
 # def file_read_txt(f_path):
 #     try:
@@ -191,6 +196,7 @@ def content_clip(cont):
             res_list.append(clip_cont)
             clip_cont = ''
     res_list.append(clip_cont)
+    print(u'已按照' + str(max_content_length) + u'字节长度的标准，将输入内容划分为' + str(len(res_list)) + u'个部分，并将逐个进行数据抽取')
     return res_list
 
 
@@ -200,8 +206,8 @@ if __name__ == '__main__':
     # f_input = u'黔东南苗族侗族自治州2023年国民经济和社会发展统计公报.pdf'
     file_list = {
         'word': u'material/md素材-2023年洛阳市国民经济和社会发展统计公报.docx',
-        'pdf': u'material/黔东南苗族侗族自治州2023年国民经济和社会发展统计公报.pdf',
+        'pdf': u'material/周口市统计公报2023.pdf',
         'html': 'https://tjj.qdn.gov.cn/tjsj/tjgb_57099/tjgb_57101/202105/t20210508_68020510.html'
     }
     global time_origin
-    main(file_list['pdf'])
+    main(file_list['pdf'], model='online')
