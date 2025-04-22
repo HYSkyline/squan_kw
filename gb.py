@@ -8,6 +8,7 @@ from docx import Document
 from file_format_trans import file_format_transform
 import re
 import json
+import xlwt
 
 
 def main(f_path, model):
@@ -16,7 +17,7 @@ def main(f_path, model):
     print(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     time_origin = time.time()
 
-    file_name = f_path.split('.')[0]
+    file_name = f_path.split('.')[0].split('/')[-1]
     md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
     md_content_clip_list = content_clip(md_content)
     # print(u'******调试用********\n' + md_content)
@@ -35,7 +36,48 @@ def main(f_path, model):
             exit()
         print(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
         print('--' * 6)
+
+    # data_sum(file_name, model, num_clips=8)
     print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
+
+
+def data_sum(file_name, model, num_clips):
+    print(u'缓存数据拼合最终表格中……')
+    res_sum = []    # {"indicator": "全部财税收入（亿元）", "value": 156.40}  *N
+    if model == 'online':
+        for i in range(num_clips):
+            with open('data/' + file_name + '-' + str(i + 1) + '_aliyun.txt', 'r', encoding='utf-8') as f_cont:
+                cont = f_cont.read().replace('\n', '')
+            res_json = json.loads(cont)
+            for each in res_json['data']:
+                res_sum.append(each)
+    else:
+        for i in range(num_clips):
+            with open('data/' + file_name + '-' + str(i + 1) + '_ollama.txt', 'r', encoding='utf-8') as f_cont:
+                cont = f_cont.read().replace('\n', '')
+            res_json = json.loads(cont)
+            for each in res_json['data']:
+                res_sum.append(each)
+
+    # 创建Excel工作簿和工作表
+    workbook = xlwt.Workbook(encoding='utf-8')
+    worksheet = workbook.add_sheet(u'数据抽取-指标表')
+
+    # 写入列名（首行）
+    worksheet.write(0, 0, u'序号')
+    worksheet.write(0, 1, u'指标名称')
+    worksheet.write(0, 2, u'指标数值')
+
+    # 写入数据行
+    for i in range(len(res_sum)):
+        worksheet.write(i + 1, 0, str(i + 1))
+        worksheet.write(i + 1, 1, res_sum[i]['indicator'])
+        worksheet.write(i + 1, 2, res_sum[i]['value'])
+
+    # 保存Excel文件
+    workbook.save('data/' + file_name + u'-数据抽取结果.xls')
+    print(u'最终结果已以EXCEL文件类型保存至data文件夹下')
+    print('--' * 6)
 
 
 # def format_trans(file_path):
@@ -77,7 +119,7 @@ def data_extract_ollama(txt_content):
     # print(u'*******调试用*******\n' + prompt_pre + txt_content.replace(' ', '') + '\n******************')
     url = "http://" + ollama_ips[1][:-1] + ":11434/api/generate"  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
     payload = {
-        "model": "qwq:latest",
+        "model": "deepseek-r1:32b",
         "prompt": prompt_pre + txt_content.replace('\n', '').replace(' ', ''),
         "options": {
             "temperature": 0,
@@ -108,7 +150,6 @@ def data_extract_aliyun(txt_content):
     with open('config.config', 'r') as f_key:
         api_key = f_key.readlines()[1].split(':')[1][:-1]
     client = OpenAI(
-        # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
         api_key=api_key,  # 如何获取API Key：https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
     )
@@ -185,7 +226,7 @@ def data_output_aliyun(file_name, para_name, res):
 
 
 def content_clip(cont):
-    max_content_length = 500
+    max_content_length = 2000
     cont_list = cont.split('\n\n')
     
     res_list = []
@@ -197,6 +238,7 @@ def content_clip(cont):
             clip_cont = ''
     res_list.append(clip_cont)
     print(u'已按照' + str(max_content_length) + u'字节长度的标准，将输入内容划分为' + str(len(res_list)) + u'个部分，并将逐个进行数据抽取')
+    print('--' * 6)
     return res_list
 
 
@@ -210,4 +252,4 @@ if __name__ == '__main__':
         'html': 'https://tjj.qdn.gov.cn/tjsj/tjgb_57099/tjgb_57101/202105/t20210508_68020510.html'
     }
     global time_origin
-    main(file_list['pdf'], model='online')
+    main(file_list['word'], model='local')

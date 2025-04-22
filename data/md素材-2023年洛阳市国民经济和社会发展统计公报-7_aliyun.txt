@@ -1,0 +1,19 @@
+{
+  "data": [
+    {"indicator": "肉类总产量（万吨）", "value": 18.99},
+    {"indicator": "其中：猪肉（万吨）", "value": 14.10},
+    {"indicator": "牛肉（万吨）", "value": 1.82},
+    {"indicator": "羊肉（万吨）", "value": 0.34},
+    {"indicator": "禽肉（万吨）", "value": 1.97},
+    {"indicator": "牛奶（吨）", "value": 1218},
+    {"indicator": "禽蛋（吨）", "value": 13305},
+    {"indicator": "牛出栏（万头）", "value": 14.82},
+    {"indicator": "猪出栏（万头）", "value": 169.80},
+    {"indicator": "羊出栏（万只）", "value": 19.50},
+    {"indicator": "活家禽出栏（万只）", "value": 1188.71},
+    {"indicator": "牛年末存栏（万头）", "value": 65.85},
+    {"indicator": "猪年末存栏（万头）", "value": 130.79},
+    {"indicator": "羊年末存栏（万只）", "value": 32.26},
+    {"indicator": "活家禽年末存栏（万只）", "value": 964.54}
+  ]
+}

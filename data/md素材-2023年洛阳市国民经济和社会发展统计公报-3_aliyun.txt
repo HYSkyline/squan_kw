@@ -1,0 +1,15 @@
+{
+  "data": [
+    {"indicator": "全部财税收入（亿元）", "value": 156.40},
+    {"indicator": "财政总收入（亿元）", "value": 148.87},
+    {"indicator": "一般公共预算收入（亿元）", "value": 110.68},
+    {"indicator": "税收收入（亿元）", "value": 69.10},
+    {"indicator": "非税收入（亿元）", "value": 41.58},
+    {"indicator": "一般公共预算支出（亿元）", "value": 376.82},
+    {"indicator": "一般公共服务（亿元）", "value": 56.76},
+    {"indicator": "农林水事务（亿元）", "value": 55.62},
+    {"indicator": "教育（亿元）", "value": 85.51},
+    {"indicator": "医疗卫生与计划生育（亿元）", "value": 45.48},
+    {"indicator": "社会保障和就业（亿元）", "value": 40.08}
+  ]
+}

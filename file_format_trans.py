@@ -28,6 +28,7 @@ def file_format_transform(f_input, f_save):
 	print(u'创建temp文件夹作为缓存文件（运行完成后可手动删除）')
 
 	print(u'对输入文件进行预处理...')
+	print('--' * 6)
 	format_kind = f_input.split('.')[1]
 	if format_kind == 'doc' or format_kind == 'docx':
 		print(u'文件名:' + f_input)
@@ -57,7 +58,7 @@ def file_trans_docx(f_doc, f_save):
 	md_word = md.convert(f_doc).text_content
 	with open(f_save, 'w', encoding='utf-8') as f_res:
 		f_res.write(md_word)
-	print('word file converted.')
+	print(u'word文件已转换完成')
 	return md_word
 
 
@@ -107,7 +108,7 @@ def file_trans_pdf(f_pdf, f_save):
 	# md_pdf = md.convert(f_pdf).text_content
 	# with open(f_save, 'w', encoding='utf-8') as f_res:
 	# 	f_res.write(md_pdf)
-	print('pdf file converted.')
+	print(u'pdf文件已转换完成')
 	return full_text
 
 
@@ -147,7 +148,7 @@ def file_trans_html(f_html, f_save):
 	md_html = md.convert('temp/html_cache.txt').text_content
 	with open(f_save, 'w', encoding='utf-8') as f_res:
 		f_res.write(md_html)
-	print('html file converted.')
+	print(u'html文件已转换完成')
 	return md_html
 
 
@@ -156,7 +157,7 @@ def file_trans_txt(f_txt, f_save):
 	md_txt = md.convert(f_txt).text_content
 	with open(f_save, 'w', encoding='utf-8') as f_res:
 		f_res.write(md_html)
-	print('txt file converted.')
+	print(u'txt文件已转换完成')
 	return md_txt
 
 
@@ -166,10 +167,10 @@ def file_trans_others(f_input, f_save):
 		md_input = md.convert(f_input).text_content
 		with open(f_save, 'w', encoding='utf-8') as f_res:
 			f_res.write(md_input)
-		print('input file converted.')
+		print(u'输入文件类型不常见，无对应预处理程序，但已经转换完成。需要手动检查数据抽取成果准确性。')
 		return md_input
 	except Exception as e:
-		print('input file cannot be converted. error:' + str(e))
+		print(u'输入文件类型超出程序可处理范围 error:' + str(e))
 		exit()
 
 

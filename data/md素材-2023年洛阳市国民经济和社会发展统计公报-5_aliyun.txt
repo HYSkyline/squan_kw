@@ -1,0 +1,23 @@
+{
+  "data": [
+    {"indicator": "产量（吨） - 粮食", "value": 1223474},
+    {"indicator": "产量（吨） - 其中：夏粮", "value": 206624},
+    {"indicator": "产量（吨） - 秋粮", "value": 1016850},
+    {"indicator": "产量（吨） - 其中：豆类", "value": 31781},
+    {"indicator": "产量（吨） - 薯类", "value": 244888},
+    {"indicator": "产量（吨） - 水稻", "value": 759628},
+    {"indicator": "产量（吨） - 棉花", "value": 1040},
+    {"indicator": "产量（吨） - 油料", "value": 93770},
+    {"indicator": "产量（吨） - 其中：油菜籽", "value": 77407},
+    {"indicator": "产量（吨） - 糖料", "value": 9543},
+    {"indicator": "产量（吨） - 烤烟", "value": 21050},
+    {"indicator": "产量（吨） - 药材", "value": 70146},
+    {"indicator": "产量（吨） - 蔬菜", "value": 1871446},
+    {"indicator": "产量（吨） - 茶叶", "value": 13910},
+    {"indicator": "产量（吨） - 园林水果", "value": 211746},
+    {"indicator": "全年完成营造林面积（万公顷）", "value": 3.53},
+    {"indicator": "人工造林面积（万公顷）", "value": 1.53},
+    {"indicator": "封山育林面积（万公顷）", "value": 2},
+    {"indicator": "完成中幼林抚育面积（万公顷）", "value": 5.4}
+  ]
+}
