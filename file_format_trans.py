@@ -4,21 +4,14 @@ from markitdown import MarkItDown
 import time
 import os
 import requests
+from urllib.parse import urlparse
 import pymupdf
 from pdf2docx import Converter
 
 
+
 def main(file_list):
-	print('Link Start!')
-	print('--' * 6)
-	# time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
-	time_ori = time.time()
-
-	file_trans_transform(file_list['pdf'], 'temp/md_res_pdf.txt')
-
-	print('--' * 6)
-	print('Time escape:' + str(int((time.time() - time_ori) * 100) / 100) + 's.')
-	print('Link Logout.')
+	pass
 
 
 def file_format_transform(f_input, f_save):
@@ -44,7 +37,7 @@ def file_format_transform(f_input, f_save):
 		print(u'文件名:' + f_input)
 		print(u'待处理文件为txt文件，已直接读取')
 		return file_trans_txt(f_input, f_save)
-	elif format_kind == 'html':
+	elif format_kind == 'html' or format_kind == 'shtml':
 		print(u'网址: ' + f_input)
 		print(u'待处理文件为网页文件，正在尝试联网打开...')
 		return file_trans_html(f_input, f_save)
@@ -147,15 +140,32 @@ def list_none_replace(table):
 
 
 def file_trans_html(f_html, f_save):
-	# HTML文件打开网页转md，还未能解决附件下载型的网页
-	with open('temp/html_cache.txt', 'w', encoding='utf-8') as f_cache:
-		f_cache.write(requests.get(file_list['html']).text_content)
-	md = MarkItDown()
-	md_html = md.convert('temp/html_cache.txt').text_content
-	with open(f_save, 'w', encoding='utf-8') as f_res:
-		f_res.write(md_html)
-	print(u'html文件已转换完成')
-	return md_html
+	if is_url(f_html):
+		# HTML文件打开网页转md，还未能解决附件下载型的网页
+		with open('temp/html_cache.txt', 'w', encoding='utf-8') as f_cache:
+			f_cache.write(requests.get(f_html).text_content)
+		md = MarkItDown()
+		md_html = md.convert('temp/html_cache.txt').text_content
+		with open(f_save, 'w', encoding='utf-8') as f_res:
+			f_res.write(md_html)
+		print(u'html文件已联网打开并转换完成')
+		return md_html
+	else:
+		# 网页文件下载到本地后，需要用资源管理器打开
+		md = MarkItDown()
+		md_html = md.convert(f_html).text_content
+		with open(f_save, 'w', encoding='utf-8') as f_res:
+			f_res.write(md_html)
+		print(u'本地html文件已转换完成')
+		return md_html
+
+
+def is_url(path):
+	try:
+		result = urlparse(path)
+		return all([result.scheme, result.netloc])
+	except ValueError:
+		return False
 
 
 def file_trans_txt(f_txt, f_save):

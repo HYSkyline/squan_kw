@@ -177,11 +177,11 @@ if __name__ == '__main__':
     file_list = {
         'word': {'file_address': u'material/md素材-2023年洛阳市国民经济和社会发展统计公报.docx', 'proj_name': u'洛阳'},
         'pdf': {'file_address': u'material/周口市统计公报2023.pdf', 'proj_name': u'周口'},
-        'html': {'file_address': 'https://tjj.qdn.gov.cn/tjsj/tjgb_57099/tjgb_57101/202105/t20210508_68020510.html', 'proj_name': u'黔东南'}
+        'html': {'file_address': 'https://www.klmy.gov.cn/klmys/tjgb/202404/657c5d877dcf47fd948021980f788f11.shtml', 'proj_name': u'黔东南'}
     }
 
     # time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
     global time_origin
 
     # 用model=online/local来区分使用联网的阿里云，还是使用本地的ollama
-    main(file={'file_address': u'material/md素材-2023年洛阳市国民经济和社会发展统计公报.docx', 'proj_name': u'洛阳'}, model='online')
+    main(file=file_list['html'], model='online')
