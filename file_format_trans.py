@@ -27,7 +27,7 @@ def file_format_transform(f_input, f_save):
 		os.mkdir('temp/pdf_pages')
 	print(u'创建temp文件夹作为缓存文件（运行完成后可手动删除）')
 
-	print(u'对输入文件进行预处理...')
+	print(u'开始对输入文件进行预处理')
 	print('--' * 6)
 	format_kind = f_input.split('.')[1]
 	if format_kind == 'doc' or format_kind == 'docx':

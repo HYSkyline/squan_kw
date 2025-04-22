@@ -11,53 +11,58 @@ import json
 import xlwt
 
 
-def main(f_path, model):
+def main(file, model):
     print('Start.')
     print('--' * 6)
     print(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     time_origin = time.time()
 
-    file_name = f_path.split('.')[0].split('/')[-1]
+    f_path = file['file_address']
+    proj_name = file['proj_name']
+    # file_name = f_path.split('.')[0].split('/')[-1]
     md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
     md_content_clip_list = content_clip(md_content)
-    # print(u'******调试用********\n' + md_content)
 
-    for i in range(len(md_content_clip_list)):
-        time_para = time.time()
-        print(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
-        if model == 'online':
-            data_res = data_extract_aliyun(md_content_clip_list[i])
-            output_check = data_output_aliyun(file_name, str(i + 1), data_res)
-        elif model == 'local':
-            data_res = data_extract_ollama(md_content_clip_list[i])
-            output_check = data_output_ollama(file_name, str(i + 1), data_res)
-        else:
-            print(u'未明确数据抽取的联网/本地模式')
-            exit()
-        print(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
-        print('--' * 6)
+    # for i in range(len(md_content_clip_list)):
+    #     time_para = time.time()
+    #     print(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
+    #     if model == 'online':
+    #         data_res = data_extract_aliyun(md_content_clip_list[i])
+    #         output_check = data_output_aliyun(proj_name, str(i + 1), data_res)
+    #     elif model == 'local':
+    #         data_res = data_extract_ollama(md_content_clip_list[i])
+    #         output_check = data_output_ollama(proj_name, str(i + 1), data_res)
+    #     else:
+    #         print(u'未明确数据抽取的联网/本地模式')
+    #         exit()
+    #     print(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+    #     print('--' * 6)
 
-    # data_sum(file_name, model, num_clips=8)
+    data_sum(proj_name, model, num_clips=len(md_content_clip_list))
     print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
 
 
-def data_sum(file_name, model, num_clips):
+def data_sum(proj_name, model, num_clips):
     print(u'缓存数据拼合最终表格中……')
     res_sum = []    # {"indicator": "全部财税收入（亿元）", "value": 156.40}  *N
     if model == 'online':
         for i in range(num_clips):
-            with open('data/' + file_name + '-' + str(i + 1) + '_aliyun.txt', 'r', encoding='utf-8') as f_cont:
+            with open('data/' + proj_name + '-' + str(i + 1) + '_aliyun.txt', 'r', encoding='utf-8') as f_cont:
                 cont = f_cont.read().replace('\n', '')
             res_json = json.loads(cont)
-            for each in res_json['data']:
-                res_sum.append(each)
+            try:
+                for each in res_json['data']:
+                    res_sum.append(each)
+            except Exception as e:
+                pass
     else:
         for i in range(num_clips):
-            with open('data/' + file_name + '-' + str(i + 1) + '_ollama.txt', 'r', encoding='utf-8') as f_cont:
+            with open('data/' + proj_name + '-' + str(i + 1) + '_ollama.txt', 'r', encoding='utf-8') as f_cont:
                 cont = f_cont.read().replace('\n', '')
             res_json = json.loads(cont)
-            for each in res_json['data']:
-                res_sum.append(each)
+            if res_json:
+                for each in res_json['data']:
+                    res_sum.append(each)
 
     # 创建Excel工作簿和工作表
     workbook = xlwt.Workbook(encoding='utf-8')
@@ -70,12 +75,12 @@ def data_sum(file_name, model, num_clips):
 
     # 写入数据行
     for i in range(len(res_sum)):
-        worksheet.write(i + 1, 0, str(i + 1))
+        worksheet.write(i + 1, 0, i + 1)
         worksheet.write(i + 1, 1, res_sum[i]['indicator'])
         worksheet.write(i + 1, 2, res_sum[i]['value'])
 
     # 保存Excel文件
-    workbook.save('data/' + file_name + u'-数据抽取结果.xls')
+    workbook.save('data/' + proj_name + u'-数据抽取结果.xls')
     print(u'最终结果已以EXCEL文件类型保存至data文件夹下')
     print('--' * 6)
 
@@ -119,7 +124,7 @@ def data_extract_ollama(txt_content):
     # print(u'*******调试用*******\n' + prompt_pre + txt_content.replace(' ', '') + '\n******************')
     url = "http://" + ollama_ips[1][:-1] + ":11434/api/generate"  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
     payload = {
-        "model": "deepseek-r1:32b",
+        "model": "qwq:32b",
         "prompt": prompt_pre + txt_content.replace('\n', '').replace(' ', ''),
         "options": {
             "temperature": 0,
@@ -165,16 +170,16 @@ def data_extract_aliyun(txt_content):
     return completion.choices[0].message.content
 
 
-def data_output_ollama(file_name, para_name, res):
+def data_output_ollama(proj_name, para_name, res):
     res_json = json.loads(res)['response'].replace('\n', '').replace(' ', '')
-    with open(u'data/' + file_name + '-' + para_name + '_ollama.txt', 'w', encoding='utf-8') as f_res:
+    with open(u'data/' + proj_name + '-' + para_name + '_ollama.txt', 'w', encoding='utf-8') as f_res:
         f_res.write(res_json)
     # print(u'数据抽取结果已保存.\n' + '--' * 6)
     return 200
 
 
-def data_output_aliyun(file_name, para_name, res):
-    with open(u'data/' + file_name + '-' + para_name + '_aliyun.txt', 'w', encoding='utf-8') as f_res:
+def data_output_aliyun(proj_name, para_name, res):
+    with open(u'data/' + proj_name + '-' + para_name + '_aliyun.txt', 'w', encoding='utf-8') as f_res:
         f_res.write(res)
     # print(u'数据抽取结果已保存.\n' + '--' * 6)
     return 200
@@ -226,7 +231,7 @@ def data_output_aliyun(file_name, para_name, res):
 
 
 def content_clip(cont):
-    max_content_length = 2000
+    max_content_length = 1000
     cont_list = cont.split('\n\n')
     
     res_list = []
@@ -247,9 +252,9 @@ if __name__ == '__main__':
     # f_input = u'2023年洛阳市国民经济和社会发展统计公报.docx'
     # f_input = u'黔东南苗族侗族自治州2023年国民经济和社会发展统计公报.pdf'
     file_list = {
-        'word': u'material/md素材-2023年洛阳市国民经济和社会发展统计公报.docx',
-        'pdf': u'material/周口市统计公报2023.pdf',
-        'html': 'https://tjj.qdn.gov.cn/tjsj/tjgb_57099/tjgb_57101/202105/t20210508_68020510.html'
+        'word': {'file_address': u'material/md素材-2023年洛阳市国民经济和社会发展统计公报.docx', 'proj_name': u'洛阳'},
+        'pdf': {'file_address': u'material/周口市统计公报2023.pdf', 'proj_name': u'周口'},
+        'html': {'file_address': 'https://tjj.qdn.gov.cn/tjsj/tjgb_57099/tjgb_57101/202105/t20210508_68020510.html', 'proj_name': u'黔东南'}
     }
     global time_origin
-    main(file_list['word'], model='local')
+    main(file_list['word'], model='online')

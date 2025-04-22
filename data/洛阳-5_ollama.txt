@@ -1,0 +1,1 @@
+{"code":"200","message":"Success","data":[{"indicator":"地区生产总值（亿元）","value":1329.65},{"indicator":"第一产业增加值（亿元）","value":277.25}]}
