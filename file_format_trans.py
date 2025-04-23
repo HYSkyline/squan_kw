@@ -151,7 +151,6 @@ def file_trans_html(f_html, f_save):
 		print(u'html文件已联网打开并转换完成')
 		return md_html
 	else:
-		# 网页文件下载到本地后，需要用资源管理器打开
 		md = MarkItDown()
 		md_html = md.convert(f_html).text_content
 		with open(f_save, 'w', encoding='utf-8') as f_res:

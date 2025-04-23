@@ -39,6 +39,7 @@ def main(file, model):
 
     # 将数据抽取的过程文本合并，并转化为一整张EXCEL表格
     data_sum(proj_name, model, num_clips=len(md_content_clip_list))
+    cache_clean()
     print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
 
 
@@ -83,8 +84,24 @@ def data_sum(proj_name, model, num_clips):
 
     # 保存Excel文件
     workbook.save('data/' + proj_name + u'-数据抽取结果.xls')
-    print(u'最终结果已以EXCEL文件类型保存至data文件夹下')
+    print(u'最终结果已保存为data文件夹下的' + proj_name + u'-数据抽取结果.xls')
     print('--' * 6)
+
+
+def cache_clean():
+    # 清理temp文件夹下对输入文件进行预处理的过程文件
+    cache_file_list = os.listdir('temp/pdf_pages')
+    for each in cache_file_list:
+        os.remove('temp/pdf_pages/' + each)
+    cache_file_list = os.listdir('temp')
+    for each in cache_file_list:
+        os.remove('temp/' + each)
+    # 清理data文件夹下大模型对每个分段的直接输出结果，仅保留最终拼合的EXCEL指标表
+    cache_file_list = os.listdir('data')
+    for each in cache_file_list:
+        if each.split('.')[-1] == 'txt':
+            os.remove('data/' + each)
+    print(u'缓存文件已清理完成')
 
 
 def data_extract_ollama(txt_content):
