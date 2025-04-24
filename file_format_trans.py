@@ -172,7 +172,7 @@ def file_trans_txt(f_txt, f_save):
 	md = MarkItDown()
 	md_txt = md.convert(f_txt).text_content
 	with open(f_save, 'w', encoding='utf-8') as f_res:
-		f_res.write(md_html)
+		f_res.write(md_txt)
 	print(u'txt文件已转换完成')
 	return md_txt
 
