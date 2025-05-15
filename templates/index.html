@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>TJUPDI数据抽取工具</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+	
+</head>
+<body>
+<div class="container" id="body">
+	<div class="row">
+		<div class="col-6" id="infoTable">
+			<div class="row" id="title">
+				<h4>数据抽取工具</h4>
+			</div>
+			<div class="row">
+				<form method="post">
+					<div class="form-group">
+						<label for="filepath">文件路径或网址</label><br>
+						<input type="text" name="filepath" id="fpath" autocomplete="off" required>
+						<small class="form-text text-muted">统计资料的文件存放路径或网页地址</small>
+					</div>
+					<div class="form-group">
+						<label for="filename">项目名称</label><br>
+						<input type="text" name="filename" id="fname" autocomplete="off" required>
+						<small class="form-text text-muted">用于最后生成EXCEL结果的命名<br>建议以地名+时间作为名称（如上海2024）</small>
+					</div>
+					<div class="form-group" id="modeForm">
+						<label for="workmode">运行模式: 当前为<input id="modeText" name="modeText" value="联网模式"></input>
+						<div>
+							<input type="radio" id="online" name="modeSelect" checked/>
+							<label for="online">联网模式</label>
+							<input type="radio" id="local" name="modeSelect">
+							<label for="local">本地模式</label>
+						</div>
+						<small class="form-text text-muted">联网使用阿里云qwen，本地使用deepseek32b<br>如无保密需求强烈建议使用联网模式</small>
+					</div>
+					<button type="submit" class="btn btn-primary" name="submit">开始运行</button>
+				</form>
+			</div>
+		</div>
+		<div class="col-6" id="progressBar">
+			<div id="progressInfo">
+				<p>运行时的过程信息：</p>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+	var modeForm = document.getElementById("modeForm");
+	var onlineBtn = document.getElementById("online");
+	var modeInput = document.getElementById("modeText");
+
+	modeForm.addEventListener('click', function(e) {
+	    if (onlineBtn.checked) {
+	        document.getElementById("modeText").value="联网模式";
+	    } else {
+	        document.getElementById("modeText").value="本地模式";
+	    }
+
+	})
+</script>
+</html>

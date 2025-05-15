@@ -11,6 +11,9 @@ import xlwt
 def main(file, model):
     print('Start.')
     print('--' * 6)
+
+    # time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
+    global time_origin
     print(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     time_origin = time.time()
 
@@ -190,9 +193,6 @@ def content_clip(cont):
 
 
 if __name__ == '__main__':
-    # time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
-    global time_origin
-
     # file_list = {
     #     'word': {'file_address': u'material/md素材-2023年洛阳市国民经济和社会发展统计公报.docx', 'proj_name': u'洛阳'},
     #     'pdf': {'file_address': u'material/周口市统计公报2023.pdf', 'proj_name': u'周口'},
