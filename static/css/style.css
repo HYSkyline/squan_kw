@@ -33,3 +33,12 @@ body {
 /*	background-color: aliceblue;*/
 	user-select: none;
 }
+
+button {
+	margin: 10px;
+	width: -webkit-fill-available;
+}
+#btnDownload {
+	background-color: #C7C7C7;
+	border-color: #C7C7C7;
+}

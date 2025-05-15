@@ -6,53 +6,82 @@ from openai import OpenAI
 from file_format_trans import file_format_transform
 import json
 import xlwt
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = 'material'
+if not os.path.exists(UPLOAD_FOLDER):
+	os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
 	if request.method == 'POST':
-		fpath = request.form.get('filepath')
+		fpath_file = request.form.get('filepathFILE')
+		fpath_url = request.form.get('filepathURL')
 		fname = request.form.get('filename')
 		fmode = request.form.get('modeText')
+
+		if fpath_file:
+			fpath = fpath_file
+		else:
+			fpath = fpath_url
+
 		if fmode == u'本地模式':
 			fmode = 'local'
 		elif fmode == u'联网模式':
 			fmode = 'online'
 		else:
 			raise
+
 		file_target = {
 			'file_address': fpath,
 			'proj_name': fname,
 			'model': fmode
 		}
 		print(file_target)
-		# progress_info = main(file_target)
-		# return redirect(url_for('progress'))
+		# progress_info = data_progress(file_target)
 	return render_template('index.html')
 
 
-@app.route('/test')
-def test():
-	return render_template('mybase.html')
+@app.route('/upload', methods=['POST'])
+def upload_file():
+	if 'file' not in request.files:
+		return u'未选择文件', 400
+	file = request.files['filepathFILE']
+	if file.filename == '':
+		return u'未选择文件', 400
+
+	if file:
+		filename = secure_filename(file.filename)
+		file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+		return f'文件{filename}上传完成'
+	return u'上传失败', 500
 
 
-@app.route('/progress')
+@app.route('/api/progress')
 def progress():
-	return u'正在运行中'
+	if info_print:
+		info = '\n'.join(info_print)
+	else:
+		info = ''
+	return info
 
 
-def data_progress(file, model):
-	print('Start.')
-	print('--' * 6)
-
-	# time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
-	global time_origin
-	print(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+def data_progress(file):
+	global time_origin, info_print
+	info_print = []
 	time_origin = time.time()
+	info_print.append('Start.')
+	info_print.append('--' * 6)
+	# time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
+	info_print.append(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 
 	f_path = file['file_address']
 	proj_name = file['proj_name']
+	model = file['model']
 	# 使用file_format_trans.py中的若干文件预处理函数，对输入的文件进行预处理
 	md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
 	# 大模型不能很好完成大文本量的指标抽取，所以按2000字节进行了分段，能有效提高指标抽取的完整性
@@ -61,7 +90,7 @@ def data_progress(file, model):
 	for i in range(len(md_content_clip_list)):
 		# 用time_para来对每一个分段的数据抽取耗时进行统计
 		time_para = time.time()
-		print(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
+		info_print.append(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
 		if model == 'online':
 			data_res = data_extract_aliyun(md_content_clip_list[i])	# 输入markdown格式的已经过预处理的内容，返回json的指标抽取结果
 			output_check = data_output_aliyun(proj_name, str(i + 1), data_res)	# 指标抽取结果先保存到本地txt，作为缓存文件
@@ -69,19 +98,19 @@ def data_progress(file, model):
 			data_res = data_extract_ollama(md_content_clip_list[i])
 			output_check = data_output_ollama(proj_name, str(i + 1), data_res)
 		else:
-			print(u'未明确数据抽取的联网/本地模式')
+			info_print.append(u'未明确数据抽取的联网/本地模式')
 			exit()
-		print(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
-		print('--' * 6)
+		info_print.append(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+		info_print.append('--' * 6)
 
 	# 将数据抽取的过程文本合并，并转化为一整张EXCEL表格
 	data_sum(proj_name, model, num_clips=len(md_content_clip_list))
 	cache_clean()
-	print(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
+	info_print.append(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
 
 
 def data_sum(proj_name, model, num_clips):
-	print(u'缓存数据拼合最终表格中……')
+	info_print.append(u'缓存数据拼合最终表格中……')
 	res_sum = []	# 基本形式就如同{"indicator": "全部财税收入（亿元）", "value": 156.40}
 	if model == 'online':
 		for i in range(num_clips):
@@ -121,8 +150,8 @@ def data_sum(proj_name, model, num_clips):
 
 	# 保存Excel文件
 	workbook.save('data/' + proj_name + u'-数据抽取结果.xls')
-	print(u'最终结果已保存为data文件夹下的' + proj_name + u'-数据抽取结果.xls')
-	print('--' * 6)
+	info_print.append(u'最终结果已保存为data文件夹下的' + proj_name + u'-数据抽取结果.xls')
+	info_print.append('--' * 6)
 
 
 def cache_clean():
@@ -138,7 +167,7 @@ def cache_clean():
 	for each in cache_file_list:
 		if each.split('.')[-1] == 'txt':
 			os.remove('data/' + each)
-	print(u'缓存文件已清理完成')
+	info_print.append(u'缓存文件已清理完成')
 
 
 def data_extract_ollama(txt_content):
@@ -167,10 +196,10 @@ def data_extract_ollama(txt_content):
 		if response.ok:
 			return response.text
 		else:
-			print(f"大模型处理失败，状态码：{response.status_code}，程序即将退出.")
+			info_print.append(f"大模型处理失败，状态码：{response.status_code}，程序即将退出.")
 			exit()
 	except Exception as e:
-		print(e)
+		info_print.append(e)
 		exit()
 
 
@@ -221,8 +250,8 @@ def content_clip(cont):
 			res_list.append(clip_cont)
 			clip_cont = ''
 	res_list.append(clip_cont)
-	print(u'已按照' + str(max_content_length) + u'字节长度的标准，将输入内容划分为' + str(len(res_list)) + u'个部分，并将逐个进行数据抽取')
-	print('--' * 6)
+	info_print.append(u'已按照' + str(max_content_length) + u'字节长度的标准，将输入内容划分为' + str(len(res_list)) + u'个部分，并将逐个进行数据抽取')
+	info_print.append('--' * 6)
 	return res_list
 
 
