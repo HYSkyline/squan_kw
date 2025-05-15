@@ -13,22 +13,22 @@
 	<div class="row">
 		<div class="col-6" id="infoTable">
 			<div class="row" id="title">
-				<h4>数据抽取工具</h4>
+				<h4>智能统计资料指标抽取工具</h4>
 			</div>
 			<div class="row">
 				<form method="post">
 					<div class="form-group">
-						<label for="filepath">文件路径或网址</label><br>
+						<label for="filepath">第1步: 文件路径或网址</label><br>
 						<input type="text" name="filepath" id="fpath" autocomplete="off" required>
 						<small class="form-text text-muted">统计资料的文件存放路径或网页地址</small>
 					</div>
 					<div class="form-group">
-						<label for="filename">项目名称</label><br>
+						<label for="filename">第2步: 项目名称</label><br>
 						<input type="text" name="filename" id="fname" autocomplete="off" required>
 						<small class="form-text text-muted">用于最后生成EXCEL结果的命名<br>建议以地名+时间作为名称（如上海2024）</small>
 					</div>
 					<div class="form-group" id="modeForm">
-						<label for="workmode">运行模式: 当前为<input id="modeText" name="modeText" value="联网模式"></input>
+						<label for="workmode">第3步: 当前运行模式为<input id="modeText" name="modeText" value="联网模式" readonly></input>
 						<div>
 							<input type="radio" id="online" name="modeSelect" checked/>
 							<label for="online">联网模式</label>
@@ -38,6 +38,7 @@
 						<small class="form-text text-muted">联网使用阿里云qwen，本地使用deepseek32b<br>如无保密需求强烈建议使用联网模式</small>
 					</div>
 					<button type="submit" class="btn btn-primary" name="submit">开始运行</button>
+					<button type="download" class="btn btn-primary" name="download">结果下载</button>
 				</form>
 			</div>
 		</div>
