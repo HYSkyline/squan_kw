@@ -6,56 +6,78 @@
 	<title>TJUPDI数据抽取工具</title>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
-	
 </head>
 <body>
 <div class="container" id="body">
 	<div class="row">
-		<div class="col-6" id="infoTable">
+		<div class="col-4"></div>
+		<div class="col-8" id="infoTable">
 			<div class="row" id="title">
 				<h4>智能统计资料指标抽取工具</h4>
 			</div>
 			<div class="row">
-				<form method="post" action="/upload" enctype="multipart/form-data">
-					<div class="form-group">
-						<label>第1步: 输入文件或网址</label><br>
-						<label for="filepathFILE" id="filepathFILELabel">点击下方按钮，上传统计资料文件</label><br id="addbr">
-						<input type="file" name="filepathFILE" id="fpath_f" onclick="urlInputHidden()"></input>
-						<label for="filepathURL" id="filepathURLLabel">或复制统计资料网址，输入下方文本框</label>
-						<input type="text" name="filepathURL" id="fpath_u" autocomplete="off" required onpaste="fileInputHidden()">
-						<small class="form-text text-muted">若不小心选错，重新刷新网页就好</small>
-					</div>
-
-					<div class="form-group">
-						<label for="filename">第2步: 填写项目名称</label><br>
-						<input type="text" name="filename" id="fname" autocomplete="off" required>
-						<small class="form-text text-muted">用于最后生成EXCEL结果的命名<br>建议以地名+时间作为名称（如上海2024）</small>
-					</div>
-
-					<div class="form-group" id="modeForm">
-						<label for="workmode">第3步: 当前运行模式为<input id="modeText" name="modeText" value="联网模式" readonly></input>
-						<div>
-							<input type="radio" id="online" name="modeSelect" checked/>
-							<label for="online">联网模式</label>
-							<input type="radio" id="local" name="modeSelect">
-							<label for="local">本地模式</label>
+				<form method="post" enctype="multipart/form-data" action="/upload">
+					<div class="row">
+						{% if tarfile.file_address != '' %}
+						<div class="form-group">
+							<label>第1步: 文件<b>{{ tarfile.file_address }}</b>已上传完成.</label>
 						</div>
-						<small class="form-text text-muted">联网使用阿里云qwen，本地使用deepseek32b<br>如无保密需求强烈建议使用联网模式</small>
+						{% else %}
+						<div class="form-group">
+							<label>第1步: 输入文件或网址</label><br>
+							<label for="filepathFILE" id="filepathFILELabel">点击下方按钮，上传统计资料文件</label><br id="addbr">
+							<input type="file" name="filepathFILE" id="fpath_f" onclick="urlInputHidden()">
+							<!-- <input type="submit" value="上传" id="fileUploadBtn"> -->
+							<br>
+							<label for="filepathURL" id="filepathURLLabel">或复制统计资料网址，输入下方文本框</label>
+							<input type="text" name="filepathURL" id="fpath_u" autocomplete="off" required onpaste="fileInputHidden()">
+							<small class="form-text text-muted">若不小心选错，重新刷新网页就好</small>
+						</div>
+						{% endif %}
 					</div>
 
+
 					<div class="row">
-						<button type="submit" class="btn btn-primary" name="submit" id="btnStart">开始运行</button>
+						{% if tarfile.proj_name != '' %}
+						<div class="form-group">
+							<label>第2步: 项目名称<b>{{ tarfile.proj_name }}</b>已确认完毕.</label>
+						</div>
+						{% else %}
+						<div class="form-group">
+							<label for="projName">第2步: 填写项目名称</label><br>
+							<input type="text" name="projName" id="fname" autocomplete="off" required>
+							<small class="form-text text-muted">用于最后生成EXCEL结果的命名。建议以地名+时间作为名称（如上海2024）</small>
+						</div>
+						{% endif %}
 					</div>
+
+
 					<div class="row">
-						<button type="download" class="btn btn-primary" name="download" id="btnDownload">结果下载</button>
+						{% if tarfile.model != '' %}
+						<div class="form-group">
+							<label>第3步: 运行模式为<b>{{ tarfile.model }}</b></label>
+						</div>
+						{% else %}
+						<div class="form-group" id="modeForm">
+							<label for="workmode">第3步: 当前运行模式为<input id="modeText" name="modeText" value="联网模式" readonly></input>
+							<div>
+								<input type="radio" id="online" name="modeSelect" checked/>
+								<label for="online">联网模式</label>
+								<input type="radio" id="local" name="modeSelect">
+								<label for="local">本地模式</label>
+							</div>
+							<small class="form-text text-muted">联网使用阿里云qwen，本地使用deepseek32b。如无保密需求强烈建议使用联网模式</small>
+						</div>
+						{% endif %}
+					</div>
+					
+
+					<div class="row">
+						<input type="submit" class="btn btn-primary" name="submit" id="btnStart" value="开始运行">
+						<!-- <input type="submit" value="上传" id="fileUploadBtn"> -->
+						<small class="form-text text-muted">点击运行按钮后以上三个参数将无法修改。并将同时跳转至进度汇报页面</small>
 					</div>
 				</form>
-			</div>
-		</div>
-		<div class="col-6" id="progressBar">
-			<div id="progressInfo">
-				<p>运行时的过程信息：</p>
-				<p id="tempInfo"></p>
 			</div>
 		</div>
 	</div>

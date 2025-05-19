@@ -19,6 +19,7 @@ function urlInputHidden() {
 function fileInputHidden() {
     // document.getElementById("fpath_f").value = "none";
     document.getElementById("fpath_f").style.display = "none";
+    document.getElementById("fileUploadBtn").style.display = "none";
     document.getElementById("addbr").style.display = "none";
     document.getElementById("filepathFILELabel").style.display = "none";
     document.getElementById("filepathURLLabel").textContent = "统计资料网址已填入";

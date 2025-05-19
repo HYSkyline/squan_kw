@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>TJUPDI数据抽取工具-进度报告</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="container" id="body">
+	<div class="row">
+		<div class="col-12" id="infoTable">
+			<div class="row" id="title">
+				<h4>智能统计资料指标抽取工具-进度汇报页面</h4>
+			</div>
+			<div class="row">以下为参数信息</div>
+			<div class="row">传入文件/网址: {{ tarfile.file_address }}</div>
+			<div class="row">项目名称: {{ tarfile.proj_name }}</div>
+			<div class="row">工作模式: {{ tarfile.model }}</div>
+
+			<div class="row">
+				<div id="progressInfo">
+					<p>运行时的过程信息：</p>
+					<p id="tempInfo">{{ tarfile.status }}</p>
+				</div>
+			</div>
+
+			
+		</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
+</html>
