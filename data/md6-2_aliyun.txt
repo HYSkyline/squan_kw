@@ -1,0 +1,22 @@
+{
+  "data": [
+    {"indicator": "居民消费价格总指数（%）", "value": 1.5},
+    {"indicator": "食品烟酒（%）", "value": 2.6},
+    {"indicator": "粮食（%）", "value": 1.2},
+    {"indicator": "菜（%）", "value": 9.4},
+    {"indicator": "畜肉类（%）", "value": 11.5},
+    {"indicator": "衣着（%）", "value": 1.0},
+    {"indicator": "居住（%）", "value": 2.3},
+    {"indicator": "生活用品及服务（%）", "value": 0.2},
+    {"indicator": "交通和通信（%）", "value": -2.5},
+    {"indicator": "教育文化和娱乐（%）", "value": 1.9},
+    {"indicator": "医疗保健（%）", "value": 3.3},
+    {"indicator": "其他用品和服务（%）", "value": 0.6},
+    {"indicator": "全年全州财税收入（亿元）", "value": 156.40},
+    {"indicator": "全年财政总收入（亿元）", "value": 148.87},
+    {"indicator": "一般公共预算收入（亿元）", "value": 110.68},
+    {"indicator": "一般公共预算支出（亿元）", "value": 376.82},
+    {"indicator": "全年全州国税收入（亿元）", "value": 33.68},
+    {"indicator": "全州地税收入（亿元）", "value": 70.30}
+  ]
+}

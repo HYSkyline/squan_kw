@@ -22,11 +22,17 @@
 			<div class="row">
 				<div id="progressInfo">
 					<p>运行时的过程信息：</p>
-					<p id="tempInfo">{{ tarfile.status }}</p>
+					{% for info in tarfile.status %}
+					<p id="tempInfo">{{ info }}</p>
+					{% endfor %}
 				</div>
 			</div>
 
-			
+			<div class="row">
+				<a href="/download" download="{{ tarfile.proj_name + '-数据抽取结果.xls' }}">
+					<button>输出结果下载</button>
+				</a>
+			</div>
 		</div>
 	</div>
 </div>

@@ -1,0 +1,21 @@
+{
+  "data": [
+    {"indicator": "地区生产总值（亿元）", "value": 939.05},
+    {"indicator": "第一产业增加值（亿元）", "value": 184.11},
+    {"indicator": "第二产业增加值（亿元）", "value": 261.36},
+    {"indicator": "第三产业增加值（亿元）", "value": 493.58},
+    {"indicator": "人均地区生产总值（元）", "value": 26858},
+    {"indicator": "居民消费价格比上年上涨（百分比）", "value": null},
+    {"indicator": "消费品价格上涨（百分比）", "value": null},
+    {"indicator": "服务价格上涨（百分比）", "value": null},
+    {"indicator": "食品烟酒价格上涨（百分比）", "value": null},
+    {"indicator": "衣着价格上涨（百分比）", "value": null},
+    {"indicator": "居住价格上涨（百分比）", "value": null},
+    {"indicator": "生活用品及服务价格上涨（百分比）", "value": null},
+    {"indicator": "交通和通信价格下降（百分比）", "value": null},
+    {"indicator": "教育文化和娱乐价格上涨（百分比）", "value": null},
+    {"indicator": "医疗保健价格上涨（百分比）", "value": null},
+    {"indicator": "其他用品和服务价格上涨（百分比）", "value": null},
+    {"indicator": "工业品生产者出厂价格比上年下降（百分比）", "value": null}
+  ]
+}

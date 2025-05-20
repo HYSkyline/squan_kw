@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_file
 from flask import request, url_for, redirect, flash
 import time
 import os
@@ -15,7 +15,7 @@ file_target = {
 	'file_address': '',
 	'proj_name': '',
 	'model': '',
-	'status': ''
+	'status': []
 }
 app = Flask(__name__)
 
@@ -32,7 +32,7 @@ def index():
 			'file_address': '',
 			'proj_name': '',
 			'model': '',
-			'status': ''
+			'status': []
 		}
 		return render_template('index.html', tarfile=file_target)
 
@@ -62,39 +62,44 @@ def upload_file():
 
 @app.route('/progress', methods=['GET'])
 def progress():
+	file_target['status'] = []
 	time_origin = time.time()
 	file_status_log('Start.')
 	file_status_log('--' * 6)
 	# time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
 	file_status_log(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
-	file_target['status'] = u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
+	f_path = os.path.join(app.config['UPLOAD_FOLDER'], file_target['file_address'])
+	proj_name = file_target['proj_name']
+	model = file_target['model']
+	# 使用file_format_trans.py中的若干文件预处理函数，对输入的文件进行预处理
+	md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
+	# 大模型不能很好完成大文本量的指标抽取，所以按2000字节进行了分段，能有效提高指标抽取的完整性
+	md_content_clip_list = content_clip(md_content)
+
+	for i in range(len(md_content_clip_list)):
+		# 用time_para来对每一个分段的数据抽取耗时进行统计
+		time_para = time.time()
+		file_status_log(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
+		if model == 'online':
+			data_res = data_extract_aliyun(md_content_clip_list[i])	# 输入markdown格式的已经过预处理的内容，返回json的指标抽取结果
+			output_check = data_output_aliyun(proj_name, str(i + 1), data_res)	# 指标抽取结果先保存到本地txt，作为缓存文件
+		else:
+			data_res = data_extract_ollama(md_content_clip_list[i])
+			output_check = data_output_ollama(proj_name, str(i + 1), data_res)
+		file_status_log(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+		file_status_log('--' * 6)
+
+	# 将数据抽取的过程文本合并，并转化为一整张EXCEL表格
+	data_sum(proj_name, model, num_clips=len(md_content_clip_list))
+	file_status_log(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
+	cache_clean()
 	return render_template('progress.html', tarfile=file_target)
 
-	# f_path = os.path.join(app.config['UPLOAD_FOLDER'], file_target['file_address'])
-	# proj_name = file_target['proj_name']
-	# model = file_target['model']
-	# # 使用file_format_trans.py中的若干文件预处理函数，对输入的文件进行预处理
-	# md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
-	# # 大模型不能很好完成大文本量的指标抽取，所以按2000字节进行了分段，能有效提高指标抽取的完整性
-	# md_content_clip_list = content_clip(md_content)
 
-	# for i in range(len(md_content_clip_list)):
-	# 	# 用time_para来对每一个分段的数据抽取耗时进行统计
-	# 	time_para = time.time()
-	# 	file_status_log(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
-	# 	if model == 'online':
-	# 		data_res = data_extract_aliyun(md_content_clip_list[i])	# 输入markdown格式的已经过预处理的内容，返回json的指标抽取结果
-	# 		output_check = data_output_aliyun(proj_name, str(i + 1), data_res)	# 指标抽取结果先保存到本地txt，作为缓存文件
-	# 	else:
-	# 		data_res = data_extract_ollama(md_content_clip_list[i])
-	# 		output_check = data_output_ollama(proj_name, str(i + 1), data_res)
-	# 	file_status_log(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
-	# 	file_status_log('--' * 6)
-
-	# # 将数据抽取的过程文本合并，并转化为一整张EXCEL表格
-	# data_sum(proj_name, model, num_clips=len(md_content_clip_list))
-	# file_status_log(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
-	# cache_clean()
+@app.route('/download', methods=['GET'])
+def download():
+	return send_file('data\\' + file_target['proj_name'] + '-数据抽取结果.xls', as_attachment=True)
 
 
 def data_sum(proj_name, model, num_clips):
@@ -148,13 +153,13 @@ def cache_clean():
 	for each in cache_file_list:
 		os.remove('temp/pdf_pages/' + each)
 	cache_file_list = os.listdir('temp')
-	for each in cache_file_list:
-		os.remove('temp/' + each)
+	# for each in cache_file_list:
+	# 	os.remove('temp/' + each)
 	# 清理data文件夹下大模型对每个分段的直接输出结果，仅保留最终拼合的EXCEL指标表
-	cache_file_list = os.listdir('data')
-	for each in cache_file_list:
-		if each.split('.')[-1] == 'txt':
-			os.remove('data/' + each)
+	# cache_file_list = os.listdir('data')
+	# for each in cache_file_list:
+	# 	if each.split('.')[-1] == 'txt':
+	# 		os.remove('data/' + each)
 	file_status_log(u'缓存文件已清理完成')
 	file_target = {
 		'file_address': '',
@@ -249,8 +254,7 @@ def content_clip(cont):
 
 
 def file_status_log(text_content):
-	file_target['status'] = file_target['status'] + text_content + '\n'
-	return render_template('progress.html', tarfile=file_target)
+	file_target['status'].append(text_content)
 
 
 if __name__ == '__main__':
