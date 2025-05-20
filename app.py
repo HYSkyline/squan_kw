@@ -66,6 +66,7 @@ def progress():
 	time_origin = time.time()
 	file_status_log('Start.')
 	file_status_log('--' * 6)
+	# time.sleep(5)
 	# time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
 	file_status_log(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 
@@ -223,6 +224,32 @@ def data_extract_aliyun(txt_content):
 	return completion.choices[0].message.content
 
 
+def data_extract_autodl(txt_content):
+	# 以autodl_ip和autodl_modelname存储qwen3的授权信息
+	with open('config.config', 'r') as f_autodl:
+		content = f_autodl.readlines()
+		autodl_ip = content[2].split(',')[1][:-1]  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
+		autodl_model = content[3].split(':')[1][:-1]
+		autodl_key = content[4].split(':')[1][:-1]
+	# 以prompt_pre.txt文件存储定制化的提示词前缀
+	with open('prompt_pre.txt', 'r', encoding='utf-8') as f_prompt:
+		prompt_pre = f_prompt.read()
+	client = OpenAI(
+		api_key=autodl_key,
+		base_url=autodl_ip,
+	)
+	completion = client.chat.completions.create(
+		model=autodl_model,	# 只能用现有的qwen3-235b
+		response_format={"type": "json_object"},
+		extra_body={"enable_search": False},
+		messages=[
+			{'role': 'system', 'content': u'你是一个严格按照提示词要求进行工作的数据助手，你的工作认真而精准，不会遗漏资料中任何细节。'},
+			{'role': 'user', 'content': prompt_pre + txt_content.replace('\n', '').replace(' ', '')}
+		]
+	)
+	return completion.choices[0].message.content
+
+
 def data_output_ollama(proj_name, para_name, res):
 	res_json = json.loads(res)['response'].replace('\n', '').replace(' ', '')
 	with open(u'data/' + proj_name + '-' + para_name + '_ollama.txt', 'w', encoding='utf-8') as f_res:
@@ -255,6 +282,7 @@ def content_clip(cont):
 
 def file_status_log(text_content):
 	file_target['status'].append(text_content)
+	# return render_template('progress.html', tarfile=file_target)
 
 
 if __name__ == '__main__':
