@@ -4,60 +4,42 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>TJUPDI数据抽取工具</title>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+	<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../static/css/style.css">
 </head>
 <body>
 <div class="container" id="body">
 	<div class="row">
-		<div class="col-4"></div>
 		<div class="col-8" id="infoTable">
 			<div class="row" id="title">
 				<h4>智能统计资料指标抽取工具</h4>
 			</div>
 			<div class="row">
-				<form method="post" enctype="multipart/form-data" action="/upload">
+				<form method="post" enctype="multipart/form-data" action="/process">
 					<div class="row">
-						{% if tarfile.file_address != '' %}
 						<div class="form-group">
-							<label>第1步: 文件<b>{{ tarfile.file_address }}</b>已上传完成.</label>
-						</div>
-						{% else %}
-						<div class="form-group">
-							<label>第1步: 输入文件或网址</label><br>
-							<label for="filepathFILE" id="filepathFILELabel">点击下方按钮，上传统计资料文件</label><br id="addbr">
+							<label>第1步: 输入文件或网址</label><br class="addbr">
+							<label for="filepathFILE" id="filepathFILELabel">点击下方按钮，上传统计资料文件</label><br class="addbr">
 							<input type="file" name="filepathFILE" id="fpath_f" onclick="urlInputHidden()">
-							<!-- <input type="submit" value="上传" id="fileUploadBtn"> -->
 							<br>
 							<label for="filepathURL" id="filepathURLLabel">或复制统计资料网址，输入下方文本框</label>
-							<input type="text" name="filepathURL" id="fpath_u" autocomplete="off" required onpaste="fileInputHidden()">
+							<input type="url" name="filepathURL" id="fpath_u" autocomplete="off" required onpaste="fileInputHidden()">
 							<small class="form-text text-muted">若不小心选错，重新刷新网页就好</small>
 						</div>
-						{% endif %}
 					</div>
-
+					<hr>
 
 					<div class="row">
-						{% if tarfile.proj_name != '' %}
-						<div class="form-group">
-							<label>第2步: 项目名称<b>{{ tarfile.proj_name }}</b>已确认完毕.</label>
-						</div>
-						{% else %}
 						<div class="form-group">
 							<label for="projName">第2步: 填写项目名称</label><br>
 							<input type="text" name="projName" id="fname" autocomplete="off" required>
 							<small class="form-text text-muted">用于最后生成EXCEL结果的命名。建议以地名+时间作为名称（如上海2024）</small>
 						</div>
-						{% endif %}
 					</div>
-
+					<hr>
 
 					<div class="row">
-						{% if tarfile.model != '' %}
-						<div class="form-group">
-							<label>第3步: 运行模式为<b>{{ tarfile.model }}</b></label>
-						</div>
-						{% else %}
 						<div class="form-group" id="modeForm">
 							<label for="workmode">第3步: 当前运行模式为<input id="modeText" name="modeText" value="联网模式" readonly></input>
 							<div>
@@ -68,20 +50,25 @@
 							</div>
 							<small class="form-text text-muted">联网使用AutoDL-qwen3-235b，本地使用deepseek32b。如无保密需求强烈建议使用联网模式</small>
 						</div>
-						{% endif %}
 					</div>
-					
+					<hr>
 
 					<div class="row">
 						<input type="submit" class="btn btn-primary" name="submit" id="btnStart" value="开始运行">
-						<!-- <input type="submit" value="上传" id="fileUploadBtn"> -->
+						<input type="button" name="download" value="结果下载" id="downloadBtn">
 						<small class="form-text text-muted">点击运行按钮后以上3项参数将无法修改，并将同时跳转至进度汇报页面</small>
 					</div>
 				</form>
 			</div>
 		</div>
+		<div class="col-4">
+			<p id="tempPanel">程序运行信息: </p>
+			<p id="tempInfo"></p>
+		</div>
 	</div>
 </div>
 </body>
-<script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
+<script type="text/javascript" src="../static/js/uiAction.js"></script>
+<script type="text/javascript" src="../static/js/indexPost.js"></script>
+<script type="text/javascript" src="../static/js/indexPost.js"></script>
 </html>

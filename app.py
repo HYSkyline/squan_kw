@@ -1,5 +1,4 @@
-from flask import Flask, render_template, send_file
-from flask import request, url_for, redirect, flash
+from flask import Flask, render_template, send_file, request, url_for, redirect, flash, jsonify
 import time
 import os
 import requests
@@ -25,77 +24,84 @@ if not os.path.exists(UPLOAD_FOLDER):
 	os.makedirs(UPLOAD_FOLDER)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
-	if request.method == 'GET':
-		file_target = {
-			'file_address': '',
-			'proj_name': '',
-			'model': '',
-			'status': []
-		}
-		return render_template('index.html', tarfile=file_target)
+	return render_template('index.html', tarfile=file_target)
 
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-	file = request.files['filepathFILE']
-	url_path = request.form.get('filepathURL')
-	if file:
-		filename = file.filename
-		file_target['file_address'] = filename
-		# filename = secure_filename(file.filename)
-		file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-	elif url_path != '':
-		file_target['file_address'] = url_path
-	else:
-		return u'输入的文件名和网址均为空白字符串', 400
+@app.route('/process', methods=['POST'])
+def process():
+	file_target = {
+		'file_address': '',
+		'proj_name': '',
+		'model': '',
+		'status': []
+	}
+	input_data = request.get_json()
+	# file = request.files['filepathFILE']
+	# url_path = request.form.get('filepathURL')
+	# if file:
+	# 	filename = file.filename
+	# 	file_target['file_address'] = filename
+	# 	# filename = secure_filename(file.filename)
+	# 	file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+	# elif url_path != '':
+	# 	file_target['file_address'] = url_path
+	# else:
+	# 	return u'输入的文件名和网址均为空白字符串', 400
+	file_target['file_address'] = input_data['file_address']
+	file_target['proj_name'] = input_data['proj_name']
+	file_target['model'] = input_data['model']
+	print(file_target)
+	data_process()
+	return u'参数已传入. 程序运行中……'
 
-	file_target['proj_name'] = request.form.get('projName')
 
-	if request.form.get('modeText') == u'本地模式':
-		file_target['model'] = 'local'
-	else:
-		file_target['model'] = 'online'
-	return redirect(url_for('progress', tarfile=file_target))
+@app.route('/info', methods=['GET'])
+def info():
+	info_text = '\n'.join(file_target['status'])
+	# with open('temp/info_web.log', 'r') as f_log:
+		# info_text = f_log.read()
+	return info_text
 
 
-@app.route('/progress', methods=['GET'])
-def progress():
+def data_process():
 	file_target['status'] = []
 	time_origin = time.time()
 	file_status_log('Start.')
 	file_status_log('--' * 6)
-	# time.sleep(5)
 	# time_origin存储程序启动时间，用以计算程序各阶段耗时和整体运行时间
 	file_status_log(u'当前时间：' + str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 
-	f_path = os.path.join(app.config['UPLOAD_FOLDER'], file_target['file_address'])
-	proj_name = file_target['proj_name']
-	model = file_target['model']
-	# 使用file_format_trans.py中的若干文件预处理函数，对输入的文件进行预处理
-	md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
-	# 大模型不能很好完成大文本量的指标抽取，所以按2000字节进行了分段，能有效提高指标抽取的完整性
-	md_content_clip_list = content_clip(md_content)
+	for i in range(5):
+		file_status_log(str(i) * i)
+		time.sleep(0.9)
 
-	for i in range(len(md_content_clip_list)):
-		# 用time_para来对每一个分段的数据抽取耗时进行统计
-		time_para = time.time()
-		file_status_log(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
-		if model == 'online':
-			data_res = data_extract_aliyun(md_content_clip_list[i])	# 输入markdown格式的已经过预处理的内容，返回json的指标抽取结果
-			output_check = data_output_aliyun(proj_name, str(i + 1), data_res)	# 指标抽取结果先保存到本地txt，作为缓存文件
-		else:
-			data_res = data_extract_ollama(md_content_clip_list[i])
-			output_check = data_output_ollama(proj_name, str(i + 1), data_res)
-		file_status_log(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
-		file_status_log('--' * 6)
+	# f_path = os.path.join(app.config['UPLOAD_FOLDER'], file_target['file_address'])
+	# proj_name = file_target['proj_name']
+	# model = file_target['model']
+	# # 使用file_format_trans.py中的若干文件预处理函数，对输入的文件进行预处理
+	# md_content = file_format_transform(f_path, 'temp/md_res_md01.txt')
+	# # 大模型不能很好完成大文本量的指标抽取，所以按2000字节进行了分段，能有效提高指标抽取的完整性
+	# md_content_clip_list = content_clip(md_content)
 
-	# 将数据抽取的过程文本合并，并转化为一整张EXCEL表格
-	data_sum(proj_name, model, num_clips=len(md_content_clip_list))
-	file_status_log(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
-	cache_clean()
-	return render_template('progress.html', tarfile=file_target)
+	# for i in range(len(md_content_clip_list)):
+	# 	# 用time_para来对每一个分段的数据抽取耗时进行统计
+	# 	time_para = time.time()
+	# 	file_status_log(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
+	# 	if model == 'online':
+	# 		data_res = data_extract_aliyun(md_content_clip_list[i])	# 输入markdown格式的已经过预处理的内容，返回json的指标抽取结果
+	# 		output_check = data_output_aliyun(proj_name, str(i + 1), data_res)	# 指标抽取结果先保存到本地txt，作为缓存文件
+	# 	else:
+	# 		data_res = data_extract_ollama(md_content_clip_list[i])
+	# 		output_check = data_output_ollama(proj_name, str(i + 1), data_res)
+	# 	file_status_log(u'本段数据已提取。共耗时:' + str(int((time.time() - time_para) * 100) / 100) + 's.')
+	# 	file_status_log('--' * 6)
+
+	# # 将数据抽取的过程文本合并，并转化为一整张EXCEL表格
+	# data_sum(proj_name, model, num_clips=len(md_content_clip_list))
+	# file_status_log(u'总计耗时:' + str(int((time.time() - time_origin) * 100) / 100) + 's.\n程序已完成.')
+	# cache_clean()
 
 
 @app.route('/download', methods=['GET'])
@@ -282,7 +288,8 @@ def content_clip(cont):
 
 def file_status_log(text_content):
 	file_target['status'].append(text_content)
-	# return render_template('progress.html', tarfile=file_target)
+	# with open('temp/info_web.log', 'a') as f_log:
+		# f_log.write(text_content + '\n')
 
 
 if __name__ == '__main__':
