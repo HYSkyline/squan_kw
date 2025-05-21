@@ -82,8 +82,8 @@ def data_process():
 		time_para = time.time()
 		file_status_log(u'文字信息正在分段提交给大模型解析. 当前进度:(' + str(i + 1) + '/' + str(len(md_content_clip_list)) + ').')
 		if model == 'online':
-			data_res = data_extract_aliyun(md_content_clip_list[i])	# 输入markdown格式的已经过预处理的内容，返回json的指标抽取结果
-			output_check = data_output_aliyun(proj_name, str(i + 1), data_res)	# 指标抽取结果先保存到本地txt，作为缓存文件
+			data_res = data_extract_autodl(md_content_clip_list[i])	# 输入markdown格式的已经过预处理的内容，返回json的指标抽取结果
+			output_check = data_output_autodl(proj_name, str(i + 1), data_res)	# 指标抽取结果先保存到本地txt，作为缓存文件
 		else:
 			data_res = data_extract_ollama(md_content_clip_list[i])
 			output_check = data_output_ollama(proj_name, str(i + 1), data_res)
@@ -106,14 +106,16 @@ def data_sum(proj_name, model, num_clips):
 	res_sum = []	# 基本形式就如同{"indicator": "全部财税收入（亿元）", "value": 156.40}
 	if model == 'online':
 		for i in range(num_clips):
-			with open('data/' + proj_name + '-' + str(i + 1) + '_aliyun.txt', 'r', encoding='utf-8') as f_cont:
+			with open('data/' + proj_name + '-' + str(i + 1) + '_autodl.txt', 'r', encoding='utf-8') as f_cont:
 				cont = f_cont.read().replace('\n', '')
 			res_json = json.loads(cont)
 			# 有时候公报内容长度正好是分段标准的N倍，会出现最后一段是空白，大模型分析后返回的值也是空白
-			try:
+			if 'data' in res_json.keys():
 				for each in res_json['data']:
 					res_sum.append(each)
-			except Exception as e:
+			elif 'indicator' in res_json.keys():
+				res_sum.append(res_json)
+			else:
 				pass
 	else:
 		for i in range(num_clips):
@@ -226,12 +228,13 @@ def data_extract_autodl(txt_content):
 	# 以autodl_ip和autodl_modelname存储qwen3的授权信息
 	with open('config.config', 'r') as f_autodl:
 		content = f_autodl.readlines()
-		autodl_ip = content[2].split(',')[1][:-1]  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
-		autodl_model = content[3].split(':')[1][:-1]
-		autodl_key = content[4].split(':')[1][:-1]
+	autodl_ip = content[2].split(',')[1][:-1]  # 实际使用时，IP 替换为 Ollama 所在的服务器 IP
+	autodl_model = content[3].split(':')[1][:-1]
+	autodl_key = content[4].split(':')[1][:-1]
 	# 以prompt_pre.txt文件存储定制化的提示词前缀
 	with open('prompt_pre.txt', 'r', encoding='utf-8') as f_prompt:
 		prompt_pre = f_prompt.read()
+
 	client = OpenAI(
 		api_key=autodl_key,
 		base_url=autodl_ip,
@@ -240,12 +243,13 @@ def data_extract_autodl(txt_content):
 		model=autodl_model,	# 只能用现有的qwen3-235b
 		response_format={"type": "json_object"},
 		extra_body={"enable_search": False},
+		stream=False,
 		messages=[
 			{'role': 'system', 'content': u'你是一个严格按照提示词要求进行工作的数据助手，你的工作认真而精准，不会遗漏资料中任何细节。'},
 			{'role': 'user', 'content': prompt_pre + txt_content.replace('\n', '').replace(' ', '')}
 		]
 	)
-	return completion.choices[0].message.content
+	return completion.choices[0].message.reasoning_content
 
 
 def data_output_ollama(proj_name, para_name, res):
@@ -257,6 +261,12 @@ def data_output_ollama(proj_name, para_name, res):
 
 def data_output_aliyun(proj_name, para_name, res):
 	with open(u'data/' + proj_name + '-' + para_name + '_aliyun.txt', 'w', encoding='utf-8') as f_res:
+		f_res.write(res)
+	return 200
+
+
+def data_output_autodl(proj_name, para_name, res):
+	with open(u'data/' + proj_name + '-' + para_name + '_autodl.txt', 'w', encoding='utf-8') as f_res:
 		f_res.write(res)
 	return 200
 
