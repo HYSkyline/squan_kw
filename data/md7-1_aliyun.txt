@@ -1,0 +1,13 @@
+{
+  "data": [
+    {"indicator": "地区生产总值（亿元）", "value": 939.05},
+    {"indicator": "第一产业增加值（亿元）", "value": 184.11},
+    {"indicator": "第二产业增加值（亿元）", "value": 261.36},
+    {"indicator": "第三产业增加值（亿元）", "value": 493.58},
+    {"indicator": "人均地区生产总值（元）", "value": 26858},
+    {"indicator": "财税收入（亿元）", "value": 156.40},
+    {"indicator": "财政总收入（亿元）", "value": 148.87},
+    {"indicator": "一般公共预算收入（亿元）", "value": 110.68},
+    {"indicator": "一般公共预算支出（亿元）", "value": 376.82}
+  ]
+}

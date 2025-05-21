@@ -1,17 +1,36 @@
+.container {
+	max-width: 1600px;
+}
 #title {
-	margin-bottom: 20px;
+	text-align: center;
 }
-#progressBar {
-	background-color: #F2F2F2;
+.col-6 {
+	padding-left: 2px;
+	padding-right: 2px;
+}
+.row-step {
 	border: solid;
-	border-color: #C7C7C7;
-	border-radius: 10px;
 	border-width: 1px;
+    border-color: #A6A6A6;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 4px;
 }
-#progressInfo {
-	margin: 5px;
+.row-step:hover {
+	border: solid;
+	border-width: 2px;
+    border-color: #808080;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 3px;
 }
 
+
+
+form {
+	width: 100%;
+	margin-right: 15px;
+}
 .form-group {
 	width: -webkit-fill-available;
 /*	border: solid;*/
@@ -20,7 +39,17 @@
 /*	border-radius: 10px;*/
 	padding: 5px;
 /*	background-color: aliceblue;*/
+	margin-bottom: 0;
 }
+
+.btn {
+	width: 100%;
+}
+
+#fpath_u {
+	width: 100%;
+}
+
 input[type="text"] {
 	width: -webkit-fill-available;
 }
@@ -30,7 +59,6 @@ body {
 #modeText {
 	border: none;
 	text-align: left;
-/*	background-color: aliceblue;*/
 	user-select: none;
 }
 
@@ -38,7 +66,25 @@ button {
 	margin: 10px;
 	width: -webkit-fill-available;
 }
-#btnDownload {
-	background-color: #C7C7C7;
+
+
+
+/*过程信息渲染*/
+#processBar {
+	background-color: white;
+	border: solid;
 	border-color: #C7C7C7;
+	border-radius: 10px;
+	border-width: 1px;
+	overflow: auto;
+	max-height: 700px;
+}
+
+#tempPanel {
+	font-size: large;
+	font-weight: 700;
+}
+
+.info {
+	margin-bottom: 2px;
 }

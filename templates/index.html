@@ -7,68 +7,72 @@
 	<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="../static/css/style.css">
+	<link rel="icon" type="image/x-icon" href="../static/img/logo-tj.jpg">
 </head>
 <body>
 <div class="container" id="body">
 	<div class="row">
-		<div class="col-8" id="infoTable">
+		<div class="col-6" id="infoTable">
 			<div class="row" id="title">
-				<h4>智能统计资料指标抽取工具</h4>
+				<h3>智能统计资料指标抽取工具</h3>
 			</div>
 			<div class="row">
 				<form method="post" enctype="multipart/form-data" action="/process">
-					<div class="row">
+					<div class="row row-step">
 						<div class="form-group">
-							<label>第1步: 输入文件或网址</label><br class="addbr">
-							<label for="filepathFILE" id="filepathFILELabel">点击下方按钮，上传统计资料文件</label><br class="addbr">
-							<input type="file" name="filepathFILE" id="fpath_f" onclick="urlInputHidden()">
-							<br>
-							<label for="filepathURL" id="filepathURLLabel">或复制统计资料网址，输入下方文本框</label>
-							<input type="url" name="filepathURL" id="fpath_u" autocomplete="off" required onpaste="fileInputHidden()">
-							<small class="form-text text-muted">若不小心选错，重新刷新网页就好</small>
+							<label><b>第1步: 输入文件或网址</b></label><br class="addbr">
+							<label for="filepathFILE" id="filepathFILELabel"><b>1. 本地文件上传方式</b>：点击下方按钮，上传统计资料文件</label><br class="addbr">
+							<input type="file" name="filepathFILE" id="fpath_f">
+							<hr>
+							<label for="filepathURL" id="filepathURLLabel"><b>2. 在线网页解析方式</b>：复制统计资料网址，输入下方文本框</label><br>
+							<input type="url" name="filepathURL" id="fpath_u" autocomplete="off" required>
+							<small class="form-text text-muted">任选1种方式输入统计资料地址</small>
 						</div>
 					</div>
-					<hr>
 
-					<div class="row">
+					<div class="row row-step">
 						<div class="form-group">
-							<label for="projName">第2步: 填写项目名称</label><br>
+							<label for="projName"><b>第2步: 填写项目名称</b></label><br>
 							<input type="text" name="projName" id="fname" autocomplete="off" required>
 							<small class="form-text text-muted">用于最后生成EXCEL结果的命名。建议以地名+时间作为名称（如上海2024）</small>
 						</div>
 					</div>
-					<hr>
 
-					<div class="row">
+					<div class="row row-step">
 						<div class="form-group" id="modeForm">
-							<label for="workmode">第3步: 当前运行模式为<input id="modeText" name="modeText" value="联网模式" readonly></input>
+							<label for="workmode"><b>第3步: 选择运行模式</b></label><br>
+							<label>当前模式为<input id="modeText" name="modeText" value="联网模式" readonly></input></label>
 							<div>
-								<input type="radio" id="online" name="modeSelect" checked/>
+								<input type="radio" id="online" name="modeSelect" value="联网模式" checked/>
 								<label for="online">联网模式</label>
-								<input type="radio" id="local" name="modeSelect">
+								<input type="radio" id="local" name="modeSelect" value="本地模式">
 								<label for="local">本地模式</label>
 							</div>
-							<small class="form-text text-muted">联网使用AutoDL-qwen3-235b，本地使用deepseek32b。如无保密需求强烈建议使用联网模式</small>
+							<small class="form-text text-muted">联网使用AutoDL-qwen3-235b，本地使用deepseek32b。从运行速度与准确性考虑，建议使用联网模式</small>
 						</div>
 					</div>
-					<hr>
 
-					<div class="row">
-						<input type="submit" class="btn btn-primary" name="submit" id="btnStart" value="开始运行">
-						<input type="button" name="download" value="结果下载" id="downloadBtn">
-						<small class="form-text text-muted">点击运行按钮后以上3项参数将无法修改，并将同时跳转至进度汇报页面</small>
+					<div class="row row-step">
+						<div class="col-6">
+							<input type="submit" class="btn btn-primary" name="submit" id="btnStart" value="开始运行">
+						</div>
+						<div class="col-6">
+							<a id="downloadLink" href="/download">
+							<input type="button" class="btn btn-primary" name="download" value="结果下载" id="downloadBtn">
+							</a>
+						</div>
+						<small class="form-text text-muted">点击开始运行按钮，开始提取数据</small>
 					</div>
 				</form>
 			</div>
 		</div>
-		<div class="col-4">
-			<p id="tempPanel">程序运行信息: </p>
+		<div class="col-6" id="processBar">
+			<p id="tempPanel">运行过程信息窗口</p>
 			<p id="tempInfo"></p>
 		</div>
 	</div>
 </div>
 </body>
 <script type="text/javascript" src="../static/js/uiAction.js"></script>
-<script type="text/javascript" src="../static/js/indexPost.js"></script>
 <script type="text/javascript" src="../static/js/indexPost.js"></script>
 </html>
